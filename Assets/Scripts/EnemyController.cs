@@ -3,9 +3,11 @@ using System.Collections;
 
 public class EnemyController : MonoBehaviour {
 
+    public bool avoid;
     public int diffLvl;
     public float currentHealth, currentSpeed;
     public Sprite easyEnemy, mediumEnemy, hardEnemy;
+    public Transform[] otherWaypoints;
     public GameObject parts;
 
     private bool entered, exited;
@@ -14,15 +16,15 @@ public class EnemyController : MonoBehaviour {
     private int EASY = 1, MEDIUM = 2, HARD = 3;
 
     private bool stop = false, waypointWait = false;
-    private float midSpeed, maxSpeed, minSpeed, turnRate, patrolRad, radius, lookWait;
+    private float maxSpeed, minSpeed, turnRate, patrolRad, radius, lookWait;
     private Vector3 center, temp, look, spawnPos, wayPoint;
-    private Quaternion rot;
-    private Quaternion lookAt;
+    private Quaternion rot, lookAt;
     private Rigidbody2D rb;
     private Animator enemyAnim;
     private GameObject player, cam;
 
     void Awake() {
+        avoid = false;
         enemyAnim = GetComponentInChildren<Animator>();
         easyRate = 50; mediumRate = 85; hardRate = 100;
         Difficulty();
@@ -37,95 +39,73 @@ public class EnemyController : MonoBehaviour {
     }
 
     void Update() {
-        if (GetComponentInChildren<EnemyPatrol>().enabled == true) {
-            entered = GetComponentInChildren<EnemyPatrol>().entered;
-            exited = GetComponentInChildren<EnemyPatrol>().exited;
-        } else {
-            entered = false;
-            exited = true;
-        }
+        entered = GetComponentInChildren<EnemyPatrol>().entered;
+        exited = GetComponentInChildren<EnemyPatrol>().exited;
         if (currentHealth <= 0) {
             Death();
-            if (diffLvl == EASY) {
-                cam.GetComponent<GameController>().score += 25;
-            } else if (diffLvl == MEDIUM) {
-                cam.GetComponent<GameController>().score += 50;
-            } else if (diffLvl == HARD) {
-                cam.GetComponent<GameController>().score += 100;
-            }
-            cam.GetComponent<GameController>().kills += 1;
-            //scales difficulty of newly instantiated enemies as the player kills more enemies
-            easyRate = -2;
-            mediumRate = -1;
         }
     }
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-        if (exited) {
-            Patrol();
-        } else if (entered) {
-            rb.AddForce(transform.up * currentSpeed);
+        if (avoid) { //when avoiding other vehicles
+            Avoid();
+        } else if (entered) { //when player is in sight
             if (!stop)
                 StartCoroutine(LookAt());
+            rb.AddForce(transform.up * currentSpeed);
+        } else if (exited) { //when player is not in sight
+            Patrol();
         }
     }
 
-    void Difficulty() {
+    void Difficulty() { //Sets values for enemies based on the difficulty level assigned to them
         int temp = Random.Range(1, 100);
         if (temp <= easyRate) {
             diffLvl = EASY;
             enemyAnim.runtimeAnimatorController = Resources.Load("Easy Enemy") as RuntimeAnimatorController;
-            maxSpeed = 120;
-            minSpeed = 70;
-            midSpeed = (maxSpeed + minSpeed) / 2f;
-            currentSpeed = midSpeed;
-            turnRate = 170;
-            lookWait = 0.03f;
-            patrolRad = 10;
-            maxHealth = 50;
-            currentHealth = maxHealth;
+            maxSpeed = 150; minSpeed = 60; currentSpeed = maxSpeed; turnRate = 370; lookWait = 0.03f; patrolRad = 10; maxHealth = 50; currentHealth = maxHealth;
         } else if (temp > easyRate && temp <= mediumRate) {
             diffLvl = MEDIUM;
             enemyAnim.runtimeAnimatorController = Resources.Load("Medium Enemy") as RuntimeAnimatorController;
-            maxSpeed = 140;
-            minSpeed = 80;
-            midSpeed = (maxSpeed + minSpeed) / 2f;
-            currentSpeed = midSpeed;
-            turnRate = 180;
-            lookWait = 0.02f;
-            patrolRad = 15;
-            maxHealth = 65;
-            currentHealth = maxHealth;
+            maxSpeed = 170; minSpeed = 65; currentSpeed = maxSpeed; turnRate = 380; lookWait = 0.02f; patrolRad = 15; maxHealth = 65; currentHealth = maxHealth;
         } else if (temp > mediumRate && temp <= hardRate) {
             diffLvl = HARD;
             enemyAnim.runtimeAnimatorController = Resources.Load("Hard Enemy") as RuntimeAnimatorController;
-            maxSpeed = 160;
-            minSpeed = 90;
-            midSpeed = (maxSpeed + minSpeed) / 2f;
-            currentSpeed = midSpeed;
-            turnRate = 190;
-            lookWait = 0.01f;
-            patrolRad = 20;
-            maxHealth = 80;
-            currentHealth = maxHealth;
+            maxSpeed = 190; minSpeed = 75; currentSpeed = maxSpeed; turnRate = 390; lookWait = 0.01f; patrolRad = 20; maxHealth = 80; currentHealth = maxHealth;
         }
     }
 
-    void Patrol() {
-        if (!waypointWait) {
-            StartCoroutine(NewWaypoint());
+    void Avoid() { //avoid blimps and other enemies
+        Vector3 viewPos = GetComponentInChildren<EnemyFire>().gameObject.transform.position;
+        float dis1 = 0, dis2 = 0, dis3 = 0, dis4 = 0;
+        if (otherWaypoints[1] != null && otherWaypoints[2] != null && otherWaypoints[3] != null && otherWaypoints[4] != null) {
+            dis1 = Vector2.Distance(viewPos, otherWaypoints[1].position);
+            dis2 = Vector2.Distance(viewPos, otherWaypoints[2].position);
+            dis3 = Vector2.Distance(viewPos, otherWaypoints[3].position);
+            dis4 = Vector2.Distance(viewPos, otherWaypoints[4].position);
+
+            if (dis1 <= dis2 && dis1 <= dis3 && dis1 <= dis4) {
+                wayPoint = otherWaypoints[1].position;
+            } else if (dis2 <= dis1 && dis2 <= dis3 && dis2 <= dis4) {
+                wayPoint = otherWaypoints[2].position;
+            } else if (dis3 <= dis2 && dis3 <= dis1 && dis3 <= dis4) {
+                wayPoint = otherWaypoints[3].position;
+            } else if (dis4 <= dis2 && dis4 <= dis3 && dis4 <= dis1) {
+                wayPoint = otherWaypoints[4].position;
+            }
         }
+
         temp = transform.position - wayPoint;
         look = new Vector3(temp.x, temp.y, 1000);
         lookAt = Quaternion.LookRotation(look, Vector3.forward);
-        float angle = Quaternion.Angle(lookAt, transform.rotation);
-        if (angle >= 10.0f && currentSpeed >= minSpeed) {
-            currentSpeed = Mathf.Pow(currentSpeed, 0.995f);
+        float angle2 = Quaternion.Angle(lookAt, transform.rotation);
+        if (angle2 >= 5.0f && currentSpeed >= minSpeed) {
+            currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
             if (currentSpeed < minSpeed)
                 currentSpeed = minSpeed;
-        } else if (angle < 20.0f && currentSpeed <= maxSpeed) {
-            currentSpeed = Mathf.Pow(currentSpeed, 1.005f);
+        } else if (angle2 < 5.0f && currentSpeed < maxSpeed) {
+            currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
             if (currentSpeed > maxSpeed)
                 currentSpeed = maxSpeed;
         }
@@ -133,7 +113,28 @@ public class EnemyController : MonoBehaviour {
         rb.AddForce(transform.up * currentSpeed);
     }
 
-    IEnumerator LookAt() {
+    void Patrol() { //fly around in circles, partrolling an area
+        if (!waypointWait) {
+            StartCoroutine(NewWaypoint());
+        }
+        temp = transform.position - wayPoint;
+        look = new Vector3(temp.x, temp.y, 1000);
+        lookAt = Quaternion.LookRotation(look, Vector3.forward);
+        float angle = Quaternion.Angle(lookAt, transform.rotation);
+        if (angle >= 5.0f && currentSpeed >= minSpeed) {
+            currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
+            if (currentSpeed < minSpeed)
+                currentSpeed = minSpeed;
+        } else if (angle < 5.0f && currentSpeed < maxSpeed) {
+            currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
+            if (currentSpeed > maxSpeed)
+                currentSpeed = maxSpeed;
+        }
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
+        rb.AddForce(transform.up * currentSpeed);
+    }
+
+    IEnumerator LookAt() { //track the player's movements to chase them
         stop = true;
         yield return new WaitForSeconds(lookWait);
         if (player != null) {
@@ -146,12 +147,12 @@ public class EnemyController : MonoBehaviour {
         look = new Vector3(temp.x, temp.y, 1000);
         lookAt = Quaternion.LookRotation(look, Vector3.forward);
         float angle = Quaternion.Angle(lookAt, transform.rotation);
-        if (angle >= 10.0f && currentSpeed >= minSpeed) {
-            currentSpeed = Mathf.Pow(currentSpeed, 0.995f);
+        if (angle >= 5.0f && currentSpeed >= minSpeed) {
+            currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
             if (currentSpeed < minSpeed)
                 currentSpeed = minSpeed;
-        } else if (angle < 20.0f && currentSpeed <= maxSpeed) {
-            currentSpeed = Mathf.Pow(currentSpeed, 1.005f);
+        } else if (angle < 5.0f && currentSpeed < maxSpeed) {
+            currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
             if (currentSpeed > maxSpeed)
                 currentSpeed = maxSpeed;
         }
@@ -159,13 +160,24 @@ public class EnemyController : MonoBehaviour {
         stop = false;
     }
 
-    void Death() {
+    public void Death() {
         Vector3 temp = transform.position;
         Destroy(gameObject);
-        cam.GetComponent<GameController>().currentEnemies -= 1;
         Instantiate(parts, temp, Quaternion.identity);
+        if (diffLvl == EASY) {
+            cam.GetComponent<GameController>().score += 25;
+        } else if (diffLvl == MEDIUM) {
+            cam.GetComponent<GameController>().score += 50;
+        } else if (diffLvl == HARD) {
+            cam.GetComponent<GameController>().score += 100;
+        }
+        //scales difficulty of newly instantiated enemies as the player kills more enemies
+        easyRate = -2;
+        mediumRate = -1;
+        cam.GetComponent<GameController>().currentEnemies -= 1;
     }
 
+    //helper methods
     Vector3 RandomCircle(Vector3 center, float radius) {
         float ang = Random.value * 360;
         Vector3 pos;

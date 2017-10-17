@@ -7,11 +7,13 @@ public class EnemyFire : MonoBehaviour {
     public GameObject bullet, leftBulletSpawn, rightBulletSpawn;
 
     private bool stop = false;
+    private GameObject parent;
+    private EnemyController enemyCon;
 
     // Use this for initialization
-    void Start()
-    {
-
+    void Start() {
+        parent = transform.parent.gameObject;
+        enemyCon = parent.GetComponent<EnemyController>();
     }
 
     // Update is called once per frame
@@ -24,12 +26,17 @@ public class EnemyFire : MonoBehaviour {
     void OnTriggerEnter2D(Collider2D other) {
         if (other.tag.Equals("Player")) {
             fire = true;
+        } else if (other.tag.Equals("Blimp")) {
+            enemyCon.avoid = true;
+            enemyCon.otherWaypoints = other.gameObject.GetComponentsInChildren<Transform>();
         }
     }
 
     void OnTriggerExit2D(Collider2D other) {
         if (other.tag.Equals("Player")) {
             fire = false;
+        } else if (other.tag.Equals("Blimp")) {
+            enemyCon.avoid = false;
         }
     }
 
@@ -41,9 +48,7 @@ public class EnemyFire : MonoBehaviour {
         thisRightBullet.transform.rotation = rightBulletSpawn.transform.rotation;
         thisLeftBullet.GetComponent<Rigidbody2D>().AddForce(thisLeftBullet.transform.up * bulletSpeed);
         thisRightBullet.GetComponent<Rigidbody2D>().AddForce(thisRightBullet.transform.up * bulletSpeed);
-        Destroy(thisLeftBullet, 0.25f);
-        Destroy(thisRightBullet, 0.25f);
-        yield return new WaitForSeconds(0.01f);
+        yield return new WaitForSeconds(0.005f);
         stop = false;
     }
 }
