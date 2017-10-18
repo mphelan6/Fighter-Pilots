@@ -3,12 +3,10 @@ using System.Collections;
 
 public class PlayerPlane : MonoBehaviour {
 
-    private GameObject cam;
     private PlayerController playerCon;
 
     // Use this for initialization
     void Start () {
-        cam = GameObject.FindGameObjectWithTag("MainCamera");
         playerCon = GetComponentInParent<PlayerController>();
     }
 	
@@ -20,13 +18,13 @@ public class PlayerPlane : MonoBehaviour {
     void OnTriggerEnter2D(Collider2D other) {
         if (other.tag.Equals("Enemy Bullet")) {
             Destroy(other.gameObject);
-            playerCon.currentHealth -= 1;
+            playerCon.currentHealth -= 0.5f;
             playerCon.healthBar.value = playerCon.currentHealth;
         } else if (other.tag.Equals("Blimp")) {
-            Destroy(other.gameObject);
-            cam.GetComponent<GameController>().currentBlimps -= 1;
-            playerCon.currentHealth -= 50;
+            playerCon.currentHealth = 0;
             playerCon.healthBar.value = playerCon.currentHealth;
+        } else if (other.tag.Equals("Cannonball")) {
+            playerCon.currentHealth -= 30;
         } else if (other.tag.Equals("Enemy")) {
             playerCon.currentHealth -= 2.5f;
             playerCon.healthBar.value = playerCon.currentHealth;

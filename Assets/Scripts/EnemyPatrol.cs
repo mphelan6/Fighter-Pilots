@@ -15,7 +15,7 @@ public class EnemyPatrol : MonoBehaviour {
 	void Start () {
         parent = transform.parent.gameObject;
         patrol = GetComponent<CircleCollider2D>();
-        diffLvl = parent.GetComponentInChildren<EnemyController>().diffLvl;
+        diffLvl = GetComponentInParent<EnemyController>().diffLvl;
         if (diffLvl == EASY) {
             patrol.radius = 10f;
         } else if (diffLvl == MEDIUM) {
@@ -25,8 +25,7 @@ public class EnemyPatrol : MonoBehaviour {
         }
 	}
 
-    void Update()
-    {
+    void Update() {
         transform.position = parent.transform.position;
     }
 
@@ -35,7 +34,7 @@ public class EnemyPatrol : MonoBehaviour {
             entered = true;
             exited = false;
             patrol.radius *= 2;
-        } else if (other.tag.Equals("Bullet")) {}
+        }
     }
 
     void OnTriggerExit2D(Collider2D other) {

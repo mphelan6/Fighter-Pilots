@@ -20,11 +20,11 @@ public class EnemyPlane : MonoBehaviour {
     void OnTriggerEnter2D(Collider2D other) {
         if (other.tag.Equals("Bullet")) {
             Destroy(other.gameObject);
-            enemyCon.currentHealth -= 1.2f;
+            enemyCon.currentHealth -= 0.8f;
         } else if (other.tag.Equals("Blimp")) {
-            Destroy(other.gameObject);
-            cam.GetComponent<GameController>().currentBlimps -= 1;
-            enemyCon.currentHealth -= 50;
+            enemyCon.Death();
+        } else if (other.tag.Equals("Cannonball")) {
+            enemyCon.currentHealth -= 20;
         } else if (other.tag.Equals("Player")) {
             enemyCon.currentHealth -= 5;
         } else if (other.tag.Equals("Parts")){
