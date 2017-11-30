@@ -5,6 +5,7 @@ using UnityStandardAssets.CrossPlatformInput;
 
 public class PlayerController : MonoBehaviour {
 
+    public bool PC = false; 
     public int maxHealth, currentParts, maxParts;
     public float currentHealth, currentSpeed, maxSpeed, minSpeed, bulletSpeed, turnRate;
     public Slider healthBar, partsBar;
@@ -16,9 +17,17 @@ public class PlayerController : MonoBehaviour {
     private Rigidbody2D rb;
     private Vector3 lookVec;
     private Quaternion lookAt;
+    private GameObject controls;
 
     // Use this for initialization
-    void Start () {
+    void Start() {
+        if (PC) {
+            controls = GameObject.FindGameObjectWithTag("Controls");
+            controls.SetActive(false);
+        } else {
+            controls = GameObject.FindGameObjectWithTag("Controls");
+            controls.SetActive(true);
+        }
         gameCon = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<GameController>();
         rb = GetComponent<Rigidbody2D>();
         Slider[] sliders = FindObjectsOfType<Slider>();
@@ -39,10 +48,11 @@ public class PlayerController : MonoBehaviour {
 
     void Update()  {
         if (currentHealth > 0) {
-            /*For test builds only*/
-            fire = Input.GetKey(KeyCode.Space);
-            /*For mobile builds only*/
-            //fire = CrossPlatformInputManager.GetButton("FireReloadButton");
+            if (PC) {
+                fire = Input.GetKey(KeyCode.Mouse0); //For PC builds only
+            } else {
+                fire = CrossPlatformInputManager.GetButton("FireReloadButton"); //For mobile builds only
+            }
 
             if (fire && !stop) {
                 StartCoroutine(Fire(lookVec));
@@ -58,29 +68,30 @@ public class PlayerController : MonoBehaviour {
 
     // Update is called once per frame
     void FixedUpdate() {
-        lookVec = new Vector3(CrossPlatformInputManager.GetAxis("Horizontal"), CrossPlatformInputManager.GetAxis("Vertical"), 1000);
-
+        if (PC) {
+            lookVec = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1000);
+            lookVec.x -= Screen.width/2;
+            lookVec.y -= Screen.height/2;
+        } else {
+            lookVec = new Vector3(CrossPlatformInputManager.GetAxis("Horizontal"), CrossPlatformInputManager.GetAxis("Vertical"), 1000);
+        } 
         if (lookVec.x != 0 && lookVec.y != 0) {
             lookAt = Quaternion.LookRotation(lookVec, Vector3.back);
             float angle = Quaternion.Angle(lookAt, transform.rotation);
-            if (angle >= 10.0f && currentSpeed >= minSpeed) {
-                currentSpeed = Mathf.Pow(currentSpeed, 0.995f);
+            if (angle >= 5.0f && currentSpeed >= minSpeed) {
+                currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
                 if (currentSpeed < minSpeed)
                     currentSpeed = minSpeed;
-            } else if (angle < 20.0f && currentSpeed <= maxSpeed) {
-                currentSpeed = Mathf.Pow(currentSpeed, 1.005f);
+            } else if (angle < 5.0f && currentSpeed < maxSpeed) {
+                currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
                 if (currentSpeed > maxSpeed)
                     currentSpeed = maxSpeed;
             }
             transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
-        } else if (currentSpeed > midSpeed) {
-            currentSpeed = Mathf.Pow(currentSpeed, 0.995f);
-            if (currentSpeed < midSpeed)
-                currentSpeed = midSpeed;
-        } else if (currentSpeed < midSpeed) {
-            currentSpeed = Mathf.Pow(currentSpeed, 1.005f);
-            if (currentSpeed > midSpeed)
-                currentSpeed = midSpeed;
+        } else if (currentSpeed < maxSpeed) {
+            currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
+            if (currentSpeed > maxSpeed)
+                currentSpeed = maxSpeed;
         }
         rb.AddForce(transform.up * currentSpeed);
     }
@@ -93,9 +104,7 @@ public class PlayerController : MonoBehaviour {
         thisRightBullet.transform.rotation = transform.rotation;
         thisLeftBullet.GetComponent<Rigidbody2D>().AddForce(thisLeftBullet.transform.up * bulletSpeed);
         thisRightBullet.GetComponent<Rigidbody2D>().AddForce(thisRightBullet.transform.up * bulletSpeed);
-        Destroy(thisLeftBullet, 0.25f);
-        Destroy(thisRightBullet, 0.25f);
-        yield return new WaitForSeconds(0.01f);
+        yield return new WaitForSeconds(0.005f);
         stop = false;
     }
 
@@ -107,10 +116,11 @@ public class PlayerController : MonoBehaviour {
             currentParts -= 1;
             partsBar.value = currentParts;
 
-            /*For test builds only*/
-            fire = Input.GetKey(KeyCode.Space);
-            /*For mobile builds only*/
-            //fire = CrossPlatformInputManager.GetButton("FireReloadButton");
+            if (PC) {
+                fire = Input.GetKey(KeyCode.Mouse0); //For PC builds only
+            } else {
+                fire = CrossPlatformInputManager.GetButton("FireReloadButton"); //For mobile builds only
+            }
 
             if (fire) {
                 stop = false;
