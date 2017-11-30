@@ -18,14 +18,14 @@ Platform assembly: C:\Users\Walberg\Documents\School Work\CompSci\CSC 4790\Fight
 Loading C:\Users\Walberg\Documents\School Work\CompSci\CSC 4790\Fighter-Pilots\NetworkTest2_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
 Platform assembly: C:\Users\Walberg\Documents\School Work\CompSci\CSC 4790\Fighter-Pilots\NetworkTest2_Data\Managed\Photon3Unity3D.dll (this message is harmless)
 Loading C:\Users\Walberg\Documents\School Work\CompSci\CSC 4790\Fighter-Pilots\NetworkTest2_Data\Managed\Photon3Unity3D.dll into Unity Child Domain
-- Completed reload, in  1.254 seconds
+- Completed reload, in  0.182 seconds
 Platform assembly: C:\Users\Walberg\Documents\School Work\CompSci\CSC 4790\Fighter-Pilots\NetworkTest2_Data\Managed\System.Core.dll (this message is harmless)
 Platform assembly: C:\Users\Walberg\Documents\School Work\CompSci\CSC 4790\Fighter-Pilots\NetworkTest2_Data\Managed\System.dll (this message is harmless)
 desktop: 3840x2160 48Hz; virtual: 3840x2160 at 0,0
 <RI> Initializing input.
 <RI> Input initialized.
 <RI> Initialized touch support.
-UnloadTime: 2.779312 ms
+UnloadTime: 2.305046 ms
 OnStatusChanged: Connect current State: ConnectingToNameServer
  
 (Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
@@ -107,32 +107,22 @@ OnEvent: Event 253.
 (Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
 
 Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
-UnloadTime: 7.400951 ms
+UnloadTime: 6.614071 ms
 
 Unloading 5 unused Assets to reduce memory usage. Loaded Objects now: 532.
-Total: 1.187162 ms (FindLiveObjects: 0.105202 ms CreateObjectMapping: 0.068852 ms MarkObjects: 0.987876 ms  DeleteObjects: 0.024376 ms)
+Total: 1.203413 ms (FindLiveObjects: 0.085102 ms CreateObjectMapping: 0.069279 ms MarkObjects: 1.022516 ms  DeleteObjects: 0.025231 ms)
 
 Unloading 5 Unused Serialized files (Serialized files now loaded: 0)
-UnloadTime: 3.298054 ms
+UnloadTime: 3.568331 ms
 
-Unloading 11 unused Assets to reduce memory usage. Loaded Objects now: 532.
-Total: 1.650738 ms (FindLiveObjects: 0.074839 ms CreateObjectMapping: 0.090234 ms MarkObjects: 1.221375 ms  DeleteObjects: 0.262578 ms)
+Unloading 16 unused Assets to reduce memory usage. Loaded Objects now: 532.
+Total: 1.614387 ms (FindLiveObjects: 0.081253 ms CreateObjectMapping: 0.103491 ms MarkObjects: 1.041333 ms  DeleteObjects: 0.387025 ms)
 
-OnEvent: Event 254.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+Unloading 5 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 2.908035 ms
 
-HandleEventLeave for player ID: 1 evLeave: Event 254: {(Byte)252=(Int32[])System.Int32[], (Byte)203=(Int32)2, (Byte)254=(Int32)1}
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OnPhotonPlayerDisconnected() Charles
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OnPhotonPlayerDisonnected isMasterClient True
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
+Unloading 16 unused Assets to reduce memory usage. Loaded Objects now: 532.
+Total: 1.617381 ms (FindLiveObjects: 0.081253 ms CreateObjectMapping: 0.100070 ms MarkObjects: 1.059722 ms  DeleteObjects: 0.375051 ms)
 
 OperationResponse 254: ReturnCode: 0.
  
@@ -143,98 +133,10 @@ OnStatusChanged: Disconnect current State: DisconnectingFromGameserver
 (Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
 
 Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
-UnloadTime: 2.918727 ms
+UnloadTime: 2.720724 ms
 
 Unloading 133 unused Assets to reduce memory usage. Loaded Objects now: 369.
-Total: 1.637053 ms (FindLiveObjects: 0.067569 ms CreateObjectMapping: 0.063720 ms MarkObjects: 0.733423 ms  DeleteObjects: 0.771057 ms)
-
-OnStatusChanged: Connect current State: ConnectingToMasterserver
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OnStatusChanged: EncryptionEstablished current State: Authenticating
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OnEvent: Event 226.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OperationResponse 230: ReturnCode: 0.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-DemoAnimator/Launcher: OnConnectedToMaster() was called by PUN
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OnEvent: Event 226.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OnEvent: Event 226.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OperationResponse 225: ReturnCode: 0.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OnStatusChanged: Disconnect current State: DisconnectingFromMasterserver
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OnStatusChanged: Connect current State: ConnectingToGameserver
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OnStatusChanged: EncryptionEstablished current State: ConnectedToGameserver
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OperationResponse 230: ReturnCode: 0.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OperationResponse 226: ReturnCode: 0.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OnEvent: Event 255.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-DemoAnimator/Launcher: OnJoinedRoom() called by PUN. Now this client is in a room.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-We wait for our teammate.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OnEvent: Event 253.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-Unloading 5 Unused Serialized files (Serialized files now loaded: 0)
-UnloadTime: 1.295786 ms
-
-Unloading 3 unused Assets to reduce memory usage. Loaded Objects now: 532.
-Total: 1.168773 ms (FindLiveObjects: 0.081681 ms CreateObjectMapping: 0.065858 ms MarkObjects: 0.992581 ms  DeleteObjects: 0.027369 ms)
-
-OperationResponse 254: ReturnCode: 0.
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-OnStatusChanged: Disconnect current State: DisconnectingFromGameserver
- 
-(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
-
-Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
-UnloadTime: 3.233907 ms
-
-Unloading 128 unused Assets to reduce memory usage. Loaded Objects now: 369.
-Total: 1.674258 ms (FindLiveObjects: 0.097077 ms CreateObjectMapping: 0.098787 ms MarkObjects: 0.790729 ms  DeleteObjects: 0.685954 ms)
+Total: 1.793573 ms (FindLiveObjects: 0.070562 ms CreateObjectMapping: 0.065003 ms MarkObjects: 0.862574 ms  DeleteObjects: 0.794150 ms)
 
 OnStatusChanged: Connect current State: ConnectingToMasterserver
  
@@ -257,5 +159,5 @@ DemoAnimator/Launcher: OnConnectedToMaster() was called by PUN
 (Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 42)
 
 Setting up 2 worker threads for Enlighten.
-  Thread -> id: 20bc -> priority: 1 
-  Thread -> id: 3ae4 -> priority: 1 
+  Thread -> id: 890 -> priority: 1 
+  Thread -> id: 3bdc -> priority: 1 
