@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class Launcher : Photon.PunBehaviour {
@@ -6,7 +7,12 @@ public class Launcher : Photon.PunBehaviour {
 
     [Tooltip("The maximum number of players per room. When a room is full, it can't be joined by new players, and so new room will be created")]
     public byte MaxPlayersPerRoom = 4;
+    [Tooltip("The Ui Panel to let the user enter name, connect and play")]
+    public GameObject controlPanel;
+    [Tooltip("The UI Label to inform the user that the connection is in progress")]
+    public Text progressLabel;
 
+    bool isConnecting, waiting;
     string _gameVersion = "1";
 
     void Awake()
@@ -22,11 +28,22 @@ public class Launcher : Photon.PunBehaviour {
         PhotonNetwork.logLevel = Loglevel;
     }
 
-
     // MonoBehaviour method called on GameObject by Unity during initialization phase.
     void Start()
     {
+        progressLabel.enabled = false;
+        controlPanel.SetActive(true);
+    }
 
+    void Update()
+    {
+        if (waiting && PhotonNetwork.room.PlayerCount == 2)
+        {
+            // #Critical
+            // Load the Room Level. 
+            Debug.Log("We load the game.");
+            PhotonNetwork.LoadLevel("Main");
+        }
     }
 
     // Start the connection process. 
@@ -34,6 +51,11 @@ public class Launcher : Photon.PunBehaviour {
     // - if not yet connected, Connect this application instance to Photon Cloud Network
     public void Connect()
     {
+        waiting = false;
+        isConnecting = true;
+        progressLabel.enabled = true;
+        controlPanel.SetActive(false);
+        progressLabel.text = "Connecting...";
         // we check if we are connected or not, we join if we are , else we initiate the connection to the server.
         if (PhotonNetwork.connected) {
             // #Critical we need at this point to attempt joining a Random Room. If it fails, we'll get notified in OnPhotonRandomJoinFailed() and we'll create one.
@@ -46,12 +68,16 @@ public class Launcher : Photon.PunBehaviour {
 
     public override void OnConnectedToMaster() {
         Debug.Log("DemoAnimator/Launcher: OnConnectedToMaster() was called by PUN");
-        // #Critical: The first we try to do is to join a potential existing room. If there is, good, else, we'll be called back with OnPhotonRandomJoinFailed()  
-        PhotonNetwork.JoinRandomRoom();
+        if (isConnecting)
+        {
+            // #Critical: The first we try to do is to join a potential existing room. If there is, good, else, we'll be called back with OnPhotonRandomJoinFailed()
+            PhotonNetwork.JoinRandomRoom();
+        }
     }
 
-
     public override void OnDisconnectedFromPhoton() {
+        progressLabel.enabled = false;
+        controlPanel.SetActive(true);
         Debug.LogWarning("DemoAnimator/Launcher: OnDisconnectedFromPhoton() was called by PUN");
     }
 
@@ -63,5 +89,12 @@ public class Launcher : Photon.PunBehaviour {
 
     public override void OnJoinedRoom() {
         Debug.Log("DemoAnimator/Launcher: OnJoinedRoom() called by PUN. Now this client is in a room.");
+        // #Critical: We only load if we are the first player, else we rely on  PhotonNetwork.automaticallySyncScene to sync our instance scene.
+        Debug.Log("We wait for our teammate.");
+        if (PhotonNetwork.room.PlayerCount == 1)
+        {
+            waiting = true;
+            progressLabel.text = "Waiting for other player...";
+        }
     }
 }
