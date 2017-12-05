@@ -1,40 +1,17 @@
 fileFormatVersion: 2
-guid: ce0b5199a7fcaba40a82c57004924aa7
-timeCreated: 1512015541
+guid: 697c7540d31ef284db6d75b588ced47f
+timeCreated: 1511993796
 licenseType: Free
 ModelImporter:
   serializedVersion: 21
   fileIDToRecycleName:
     100000: //RootNode
-    100002: Body
-    100004: Body_MeshPart0
-    100006: Body_MeshPart1
-    100008: Camera
-    100010: Horizontal_Wing
-    100012: Lamp
-    100014: Verticle_Wing
     400000: //RootNode
-    400002: Body
-    400004: Body_MeshPart0
-    400006: Body_MeshPart1
-    400008: Camera
-    400010: Horizontal_Wing
-    400012: Lamp
-    400014: Verticle_Wing
-    2000000: Camera
-    2300000: Body_MeshPart0
-    2300002: Body_MeshPart1
-    2300004: Horizontal_Wing
-    2300006: Verticle_Wing
-    3300000: Body_MeshPart0
-    3300002: Body_MeshPart1
-    3300004: Horizontal_Wing
-    3300006: Verticle_Wing
-    4300000: Verticle_Wing
-    4300002: Body_MeshPart0
-    4300004: Body_MeshPart1
-    4300006: Horizontal_Wing
-    10800000: Lamp
+    2300000: //RootNode
+    3300000: //RootNode
+    4300000: Circle
+    7400000: Default Take
+    9500000: //RootNode
   materials:
     importMaterials: 1
     materialName: 0
@@ -104,7 +81,7 @@ ModelImporter:
     hasExtraRoot: 0
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  animationType: 0
+  animationType: 2
   humanoidOversampling: 1
   additionalBone: 0
   userData: 
