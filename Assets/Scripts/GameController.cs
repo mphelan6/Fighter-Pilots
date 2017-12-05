@@ -3,10 +3,10 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-public class GameController : MonoBehaviour {
+public class GameController : Photon.MonoBehaviour {
 
     public bool gameOver = false;
-    public int currentBlimps, currentEnemies, numBlimps = 0, numEnemies = 10, score = 0, highScore;
+    public int currentBlimps, currentEnemies, numBlimps, numEnemies, score = 0, highScore;
     public Text scoreText, highScoreText;
     public GameObject enemy, blimp, player, spawnCheck;
 
@@ -26,7 +26,10 @@ public class GameController : MonoBehaviour {
         currentEnemies = 0;
         currentBlimps = 0;
         thisPlayer = Instantiate(player, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-        offset = transform.position - thisPlayer.transform.position;
+        if (photonView.isMine || PhotonNetwork.connected == false)
+        { 
+            offset = transform.position - thisPlayer.transform.position;
+        }
         Spawn();
     }
 	
@@ -40,22 +43,22 @@ public class GameController : MonoBehaviour {
             PlayerPrefs.Save();
         }
 
-        if (thisPlayer != null)
+        if (thisPlayer != null && (photonView.isMine || PhotonNetwork.connected == false))
             transform.position = thisPlayer.transform.position + offset;
-        Spawn();
-        if (gameOver) {
+        if (currentEnemies < numEnemies || currentBlimps < numBlimps)
+            Spawn();
+        if (gameOver)
             StartCoroutine(Restart());
-        }
     }
 
     void Spawn() {
         if (thisPlayer != null) {
-            Vector3 playerPos = thisPlayer.transform.position;
+            Vector3 playerPos;
             Vector3 check;
-            GameObject thisCheck;
             while (currentEnemies < numEnemies) {
+                playerPos = thisPlayer.transform.position;
                 check = RandomCircle(playerPos, Random.Range(20f, 40f));
-                thisCheck = Instantiate(spawnCheck, check, Quaternion.identity) as GameObject;
+                GameObject thisCheck = Instantiate(spawnCheck, check, Quaternion.identity) as GameObject;
                 if (thisCheck.GetComponent<SpawnCheck>().isEmpty) {
                     Quaternion enemyRot = new Quaternion(Quaternion.identity.x, Quaternion.identity.y, Random.rotation.z, Quaternion.identity.w);
                     Instantiate(enemy, check, enemyRot);
@@ -64,8 +67,9 @@ public class GameController : MonoBehaviour {
                 Destroy(thisCheck);
             }
             while (currentBlimps < numBlimps) {
+                playerPos = thisPlayer.transform.position;
                 check = RandomCircle(playerPos, Random.Range(20f, 40f));
-                thisCheck = Instantiate(spawnCheck, check, Quaternion.identity) as GameObject;
+                GameObject thisCheck = Instantiate(spawnCheck, check, Quaternion.identity) as GameObject;
                 if (thisCheck.GetComponent<SpawnCheck>().isEmpty) {
                     Quaternion blimpRot = new Quaternion(Quaternion.identity.x, Quaternion.identity.y, Random.rotation.z, Quaternion.identity.w);
                     Instantiate(blimp, check, blimpRot);

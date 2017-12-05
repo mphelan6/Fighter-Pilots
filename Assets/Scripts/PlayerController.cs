@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using UnityStandardAssets.CrossPlatformInput;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : Photon.MonoBehaviour {
 
     public bool PC = false; 
     public int maxHealth, currentParts, maxParts;
@@ -47,6 +47,9 @@ public class PlayerController : MonoBehaviour {
     }
 
     void Update()  {
+        if (photonView.isMine == false && PhotonNetwork.connected == true) {
+            return;
+        }
         if (currentHealth > 0) {
             if (PC) {
                 fire = Input.GetKey(KeyCode.Mouse0); //For PC builds only

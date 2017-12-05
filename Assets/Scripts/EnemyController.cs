@@ -10,10 +10,10 @@ public class EnemyController : MonoBehaviour {
     public Transform[] otherWaypoints;
     public GameObject parts;
 
+    public int EASY = 1, MEDIUM = 2, HARD = 3;
+
     private bool entered, exited;
     private int maxHealth, easyRate, mediumRate, hardRate;
-
-    private int EASY = 1, MEDIUM = 2, HARD = 3;
 
     private bool stop = false, waypointWait = false;
     private float maxSpeed, minSpeed, turnRate, patrolRad, radius, lookWait;
@@ -42,7 +42,7 @@ public class EnemyController : MonoBehaviour {
         entered = GetComponentInChildren<EnemyPatrol>().entered;
         exited = GetComponentInChildren<EnemyPatrol>().exited;
         if (currentHealth <= 0) {
-            Death();
+            Killed();
         }
     }
 	
@@ -159,11 +159,11 @@ public class EnemyController : MonoBehaviour {
         transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
         stop = false;
     }
-
-    public void Death() {
+    public void Killed()
+    {
         Vector3 temp = transform.position;
-        Destroy(gameObject);
         Instantiate(parts, temp, Quaternion.identity);
+        Destroy(gameObject);
         if (diffLvl == EASY) {
             cam.GetComponent<GameController>().score += 25;
         } else if (diffLvl == MEDIUM) {
@@ -172,8 +172,12 @@ public class EnemyController : MonoBehaviour {
             cam.GetComponent<GameController>().score += 100;
         }
         //scales difficulty of newly instantiated enemies as the player kills more enemies
-        easyRate = -2;
-        mediumRate = -1;
+        easyRate -= 2;
+        mediumRate -= 1;
+    }
+
+    // Will be called AUTOMATICALLY after Killed() by EnemyPlane.OnTriggerExit2D()
+    public void Death() { 
         cam.GetComponent<GameController>().currentEnemies -= 1;
     }
 

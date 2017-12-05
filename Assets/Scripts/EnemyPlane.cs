@@ -34,9 +34,9 @@ public class EnemyPlane : MonoBehaviour {
     }
 
     void OnTriggerExit2D(Collider2D other) {
-        if (other.tag.Equals("Proximity")){
+        if (other.tag.Equals("Proximity")) {
+            enemyCon.Death();
             Destroy(enemyCon.gameObject);
-            cam.GetComponent<GameController>().currentEnemies -= 1;
         }
     }
 }
