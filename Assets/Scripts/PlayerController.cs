@@ -12,12 +12,21 @@ public class PlayerController : Photon.MonoBehaviour {
     public GameObject bullet, leftBulletSpawn, rightBulletSpawn;
     public GameController gameCon;
 
+    [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
+    public static GameObject LocalPlayerInstance;
+
     private bool fire = false, stop = false;
     private float midSpeed;
     private Rigidbody2D rb;
     private Vector3 lookVec;
     private Quaternion lookAt;
     private GameObject controls;
+
+    private void Awake() {
+        if (photonView.isMine) {
+            LocalPlayerInstance = gameObject;
+        }
+    }
 
     // Use this for initialization
     void Start() {

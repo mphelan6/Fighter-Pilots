@@ -25,9 +25,8 @@ public class GameController : Photon.MonoBehaviour {
         highScoreText.text = "High Score: " + highScore;
         currentEnemies = 0;
         currentBlimps = 0;
-        thisPlayer = Instantiate(player, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-        if (photonView.isMine || PhotonNetwork.connected == false)
-        { 
+        thisPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(0, 0, 0), Quaternion.identity, 0) as GameObject;
+        if (PlayerController.LocalPlayerInstance == null || PhotonNetwork.connected == false) { 
             offset = transform.position - thisPlayer.transform.position;
         }
         Spawn();
