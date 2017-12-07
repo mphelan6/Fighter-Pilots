@@ -1,13 +1,17 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using UnityStandardAssets.CrossPlatformInput;
 
-public class PlayerController : Photon.MonoBehaviour {
+[RequireComponent(typeof(PhotonView))]
+public class PlayerController : Photon.PunBehaviour {
 
-    public bool PC = false; 
+    [SerializeField]
+    public float currentHealth;
+    [SerializeField]
+    public float currentSpeed;
+
     public int maxHealth, currentParts, maxParts;
-    public float currentHealth, currentSpeed, maxSpeed, minSpeed, bulletSpeed, turnRate;
+    public float maxSpeed, minSpeed, bulletSpeed, turnRate;
     public Slider healthBar, partsBar;
     public GameObject bullet, leftBulletSpawn, rightBulletSpawn;
     public GameController gameCon;
@@ -30,82 +34,70 @@ public class PlayerController : Photon.MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        if (PC) {
-            controls = GameObject.FindGameObjectWithTag("Controls");
-            controls.SetActive(false);
-        } else {
-            controls = GameObject.FindGameObjectWithTag("Controls");
-            controls.SetActive(true);
+        if (photonView.isMine && PhotonNetwork.connected) {
+            gameCon = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<GameController>();
+            rb = GetComponent<Rigidbody2D>();
+            Slider[] sliders = FindObjectsOfType<Slider>();
+            if (sliders[0].tag.Equals("Health Bar")) {
+                healthBar = sliders[0];
+                partsBar = sliders[1];
+            } else {
+                partsBar = sliders[0];
+                healthBar = sliders[1];
+            }
+            currentHealth = maxHealth;
+            midSpeed = (maxSpeed + minSpeed) / 2f;
+            currentSpeed = midSpeed;
+            healthBar.value = currentHealth;
+            currentParts = 0;
+            partsBar.value = currentParts;
         }
-        gameCon = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<GameController>();
-        rb = GetComponent<Rigidbody2D>();
-        Slider[] sliders = FindObjectsOfType<Slider>();
-        if (sliders[0].tag.Equals("Health Bar")) {
-            healthBar = sliders[0];
-            partsBar = sliders[1];
-        } else {
-            partsBar = sliders[0];
-            healthBar = sliders[1];
-        }
-        currentHealth = maxHealth;
-        midSpeed = (maxSpeed + minSpeed) / 2f;
-        currentSpeed = midSpeed;
-        healthBar.value = currentHealth;
-        currentParts = 0;
-        partsBar.value = currentParts;
     }
 
     void Update()  {
-        if (photonView.isMine == false && PhotonNetwork.connected == true) {
-            return;
-        }
-        if (currentHealth > 0) {
-            if (PC) {
-                fire = Input.GetKey(KeyCode.Mouse0); //For PC builds only
+        if (photonView.isMine && PhotonNetwork.connected) {
+            if (currentHealth > 0) {
+                fire = Input.GetKey(KeyCode.Mouse0);
+
+                if (fire && !stop) {
+                    StartCoroutine(Fire(lookVec));
+                }
+
+                if ((maxHealth >= currentHealth) && (currentParts > 0) && !fire) {
+                    StartCoroutine(Repair());
+                }
             } else {
-                fire = CrossPlatformInputManager.GetButton("FireReloadButton"); //For mobile builds only
+                Death();
             }
-
-            if (fire && !stop) {
-                StartCoroutine(Fire(lookVec));
-            }
-
-            if ((maxHealth >= currentHealth) && (currentParts > 0) && !fire) {
-                StartCoroutine(Repair());
-            }
-        } else {
-            Death();
         }
     }
 
     // Update is called once per frame
     void FixedUpdate() {
-        if (PC) {
+        if (photonView.isMine && PhotonNetwork.connected) {
             lookVec = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1000);
-            lookVec.x -= Screen.width/2;
-            lookVec.y -= Screen.height/2;
-        } else {
-            lookVec = new Vector3(CrossPlatformInputManager.GetAxis("Horizontal"), CrossPlatformInputManager.GetAxis("Vertical"), 1000);
-        } 
-        if (lookVec.x != 0 && lookVec.y != 0) {
-            lookAt = Quaternion.LookRotation(lookVec, Vector3.back);
-            float angle = Quaternion.Angle(lookAt, transform.rotation);
-            if (angle >= 5.0f && currentSpeed >= minSpeed) {
-                currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
-                if (currentSpeed < minSpeed)
-                    currentSpeed = minSpeed;
-            } else if (angle < 5.0f && currentSpeed < maxSpeed) {
+            lookVec.x -= Screen.width / 2;
+            lookVec.y -= Screen.height / 2;
+            if (lookVec.x != 0 && lookVec.y != 0) {
+                lookAt = Quaternion.LookRotation(lookVec, Vector3.back);
+                float angle = Quaternion.Angle(lookAt, transform.rotation);
+                if (angle >= 5.0f && currentSpeed >= minSpeed) {
+                    currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
+                    if (currentSpeed < minSpeed)
+                        currentSpeed = minSpeed;
+                } else if (angle < 5.0f && currentSpeed < maxSpeed) {
+                    currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
+                    if (currentSpeed > maxSpeed)
+                        currentSpeed = maxSpeed;
+                }
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
+            } else if (currentSpeed < maxSpeed) {
                 currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
                 if (currentSpeed > maxSpeed)
                     currentSpeed = maxSpeed;
             }
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
-        } else if (currentSpeed < maxSpeed) {
-            currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
-            if (currentSpeed > maxSpeed)
-                currentSpeed = maxSpeed;
+            rb.AddForce(transform.up * currentSpeed);
         }
-        rb.AddForce(transform.up * currentSpeed);
     }
 
     IEnumerator Fire (Vector3 look) {
@@ -128,11 +120,7 @@ public class PlayerController : Photon.MonoBehaviour {
             currentParts -= 1;
             partsBar.value = currentParts;
 
-            if (PC) {
-                fire = Input.GetKey(KeyCode.Mouse0); //For PC builds only
-            } else {
-                fire = CrossPlatformInputManager.GetButton("FireReloadButton"); //For mobile builds only
-            }
+            fire = Input.GetKey(KeyCode.Mouse0);
 
             if (fire) {
                 stop = false;
@@ -147,5 +135,15 @@ public class PlayerController : Photon.MonoBehaviour {
     void Death() {
         gameCon.gameOver = true;
         Destroy(gameObject);
+    }
+
+    void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
+        if (stream.isWriting) {
+            stream.SendNext(currentHealth);
+            stream.SendNext(currentSpeed);
+        } else {
+            currentHealth = (float)stream.ReceiveNext();
+            currentSpeed = (float)stream.ReceiveNext();
+        }
     }
 }

@@ -25,15 +25,26 @@ public class GameController : Photon.MonoBehaviour {
         highScoreText.text = "High Score: " + highScore;
         currentEnemies = 0;
         currentBlimps = 0;
-        thisPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(0, 0, 0), Quaternion.identity, 0) as GameObject;
-        if (PlayerController.LocalPlayerInstance == null || PhotonNetwork.connected == false) { 
-            offset = transform.position - thisPlayer.transform.position;
+        /*if (photonView.isMine || PhotonNetwork.connected == false) { //for testing offline
+            thisPlayer = Instantiate(player, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+        }*/
+        if (PlayerController.LocalPlayerInstance == null) {
+            if (PhotonNetwork.isMasterClient) {
+                thisPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(-2.5f, 0, 0), Quaternion.identity, 0) as GameObject;
+                offset = transform.position - thisPlayer.transform.position;
+            } else {
+                thisPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(2.5f, 0, 0), Quaternion.identity, 0) as GameObject;
+                offset = transform.position - thisPlayer.transform.position;
+            }
         }
-        Spawn();
+        
+        if (PhotonNetwork.isMasterClient) {
+            Spawn();
+        }
     }
-	
-	// Update is called once per frame
-	void Update () {
+
+    // Update is called once per frame
+    void Update() {
         scoreText.text = "Score: " + score;
         if (score > highScore) {
             highScore = score;
@@ -44,8 +55,10 @@ public class GameController : Photon.MonoBehaviour {
 
         if (thisPlayer != null && (photonView.isMine || PhotonNetwork.connected == false))
             transform.position = thisPlayer.transform.position + offset;
-        if (currentEnemies < numEnemies || currentBlimps < numBlimps)
-            Spawn();
+        if (PhotonNetwork.isMasterClient) {
+            if (currentEnemies < numEnemies || currentBlimps < numBlimps)
+                Spawn();
+        }
         if (gameOver)
             StartCoroutine(Restart());
     }
