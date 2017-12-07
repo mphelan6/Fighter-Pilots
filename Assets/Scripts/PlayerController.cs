@@ -74,7 +74,7 @@ public class PlayerController : Photon.PunBehaviour {
 
     // Update is called once per frame
     void FixedUpdate() {
-        if (photonView.isMine && PhotonNetwork.connected) {
+        if (photonView.isMine && PhotonNetwork.connected && 1>2) {
             lookVec = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1000);
             lookVec.x -= Screen.width / 2;
             lookVec.y -= Screen.height / 2;

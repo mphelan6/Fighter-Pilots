@@ -3,16 +3,12 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-[RequireComponent(typeof(PhotonView))]
-public class GameController : Photon.PunBehaviour {
-
-    [SerializeField]
-    public float xPos = -2.5f;
+public class GameController : Photon.MonoBehaviour {
 
     public bool gameOver = false;
     public int currentBlimps, currentEnemies, numBlimps, numEnemies, score = 0, highScore;
     public Text scoreText, highScoreText;
-    public GameObject enemy, blimp, player, spawnCheck;
+    public GameObject enemy, blimp, player, spawnCheck, launcher;
 
     private GameObject thisPlayer, thisEnemy;
     private Vector3 offset;
@@ -34,9 +30,14 @@ public class GameController : Photon.PunBehaviour {
         }*/
         if (PlayerController.LocalPlayerInstance == null) {
             if (photonView.isMine) {
-                thisPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(xPos, 0, 0), Quaternion.identity, 0) as GameObject;
-                offset = transform.position - thisPlayer.transform.position;
-                xPos += 5;
+                if (PhotonNetwork.isMasterClient) {
+                    thisPlayer = PhotonNetwork.Instantiate(player.name, launcher.GetComponent<Launcher>().spawns[0], Quaternion.identity, 0) as GameObject;
+                    offset = transform.position - thisPlayer.transform.position;
+                }
+                if (!PhotonNetwork.isMasterClient) {
+                    thisPlayer = PhotonNetwork.Instantiate(player.name, launcher.GetComponent<Launcher>().spawns[1], Quaternion.identity, 0) as GameObject;
+                    offset = transform.position - thisPlayer.transform.position;
+                }
             }
         }
         
@@ -113,14 +114,5 @@ public class GameController : Photon.PunBehaviour {
         pos.y = center.y + radius * Mathf.Cos(ang * Mathf.Deg2Rad);
         pos.z = center.z;
         return pos;
-    }
-
-    void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
-        if (stream.isWriting) {
-            stream.SendNext(xPos);
-        } else {
-            float temp = (float)stream.ReceiveNext();
-            xPos = temp;
-        }
     }
 }
