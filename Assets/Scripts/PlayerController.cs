@@ -137,13 +137,5 @@ public class PlayerController : Photon.PunBehaviour {
         Destroy(gameObject);
     }
 
-    void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
-        if (stream.isWriting) {
-            stream.SendNext(currentHealth);
-            stream.SendNext(currentSpeed);
-        } else {
-            currentHealth = (float)stream.ReceiveNext();
-            currentSpeed = (float)stream.ReceiveNext();
-        }
-    }
+    void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {}
 }

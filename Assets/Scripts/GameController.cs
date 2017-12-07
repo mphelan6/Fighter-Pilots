@@ -119,7 +119,8 @@ public class GameController : Photon.PunBehaviour {
         if (stream.isWriting) {
             stream.SendNext(xPos);
         } else {
-            xPos = (float)stream.ReceiveNext();
+            float temp = (float)stream.ReceiveNext();
+            xPos = temp;
         }
     }
 }
