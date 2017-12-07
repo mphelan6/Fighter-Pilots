@@ -36,6 +36,7 @@ public class GameController : Photon.PunBehaviour {
             if (photonView.isMine) {
                 thisPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(xPos, 0, 0), Quaternion.identity, 0) as GameObject;
                 offset = transform.position - thisPlayer.transform.position;
+                xPos += 5;
             }
         }
         
