@@ -3,7 +3,11 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-public class GameController : Photon.MonoBehaviour {
+[RequireComponent(typeof(PhotonView))]
+public class GameController : Photon.PunBehaviour {
+
+    [SerializeField]
+    public float xPos = -2.5f;
 
     public bool gameOver = false;
     public int currentBlimps, currentEnemies, numBlimps, numEnemies, score = 0, highScore;
@@ -29,11 +33,8 @@ public class GameController : Photon.MonoBehaviour {
             thisPlayer = Instantiate(player, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
         }*/
         if (PlayerController.LocalPlayerInstance == null) {
-            if (PhotonNetwork.isMasterClient) {
-                thisPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(-2.5f, 0, 0), Quaternion.identity, 0) as GameObject;
-                offset = transform.position - thisPlayer.transform.position;
-            } else {
-                thisPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(2.5f, 0, 0), Quaternion.identity, 0) as GameObject;
+            if (photonView.isMine) {
+                thisPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(xPos, 0, 0), Quaternion.identity, 0) as GameObject;
                 offset = transform.position - thisPlayer.transform.position;
             }
         }
@@ -111,5 +112,13 @@ public class GameController : Photon.MonoBehaviour {
         pos.y = center.y + radius * Mathf.Cos(ang * Mathf.Deg2Rad);
         pos.z = center.z;
         return pos;
+    }
+
+    void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
+        if (stream.isWriting) {
+            stream.SendNext(xPos);
+        } else {
+            xPos = (float)stream.ReceiveNext();
+        }
     }
 }
