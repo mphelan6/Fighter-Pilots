@@ -99,23 +99,6 @@ public class PlayerController : Photon.PunBehaviour {
             }
             rb.AddForce(transform.up * currentSpeed);
         } else if (!photonView.isMine) {
-            if (lookVec.x != 0 && lookVec.y != 0) {
-                lookAt = Quaternion.LookRotation(lookVec, Vector3.back);
-                float angle = Quaternion.Angle(lookAt, transform.rotation);
-                if (angle >= 5.0f && currentSpeed >= minSpeed) {
-                    currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
-                    if (currentSpeed < minSpeed)
-                        currentSpeed = minSpeed;
-                } else if (angle < 5.0f && currentSpeed < maxSpeed) {
-                    currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
-                    if (currentSpeed > maxSpeed)
-                        currentSpeed = maxSpeed;
-                } transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
-            } else if (currentSpeed < maxSpeed) {
-                currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
-                if (currentSpeed > maxSpeed)
-                    currentSpeed = maxSpeed;
-            }
             rb.AddForce(transform.up * currentSpeed);
         }
     }
@@ -162,11 +145,11 @@ public class PlayerController : Photon.PunBehaviour {
     void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.isWriting) {
             stream.SendNext(fire);
-            stream.SendNext(lookVec);
+            stream.SendNext(transform.up);
             stream.SendNext(currentSpeed);
         } else {
             fire = (bool) stream.ReceiveNext();
-            lookVec = (Vector3) stream.ReceiveNext();
+            transform.up = (Vector3) stream.ReceiveNext();
             currentSpeed = (float)stream.ReceiveNext();
         }
     }
