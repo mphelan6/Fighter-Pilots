@@ -6,20 +6,19 @@ using System.Collections;
 public class PlayerController : Photon.PunBehaviour {
 
     [SerializeField]
-    public float currentHealth;
+    public bool fire = false;
     [SerializeField]
-    public float currentSpeed;
+    public float currentHealth;
 
     public int maxHealth, currentParts, maxParts;
-    public float maxSpeed, minSpeed, bulletSpeed, turnRate;
+    public float currentSpeed, maxSpeed, minSpeed, bulletSpeed, turnRate;
     public Slider healthBar, partsBar;
     public GameObject bullet, leftBulletSpawn, rightBulletSpawn;
-    public GameController gameCon;
 
     [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
     public static GameObject LocalPlayerInstance;
 
-    private bool fire = false, stop = false;
+    private bool stop = false;
     private float midSpeed;
     private Rigidbody2D rb;
     private Vector3 lookVec;
@@ -35,8 +34,8 @@ public class PlayerController : Photon.PunBehaviour {
     // Use this for initialization
     void Start() {
         if (photonView.isMine && PhotonNetwork.connected) {
-            gameCon = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<GameController>();
             rb = GetComponent<Rigidbody2D>();
+            /*
             Slider[] sliders = FindObjectsOfType<Slider>();
             if (sliders[0].tag.Equals("Health Bar")) {
                 healthBar = sliders[0];
@@ -44,23 +43,23 @@ public class PlayerController : Photon.PunBehaviour {
             } else {
                 partsBar = sliders[0];
                 healthBar = sliders[1];
-            }
+            } */
             currentHealth = maxHealth;
             midSpeed = (maxSpeed + minSpeed) / 2f;
             currentSpeed = midSpeed;
-            healthBar.value = currentHealth;
+            //healthBar.value = currentHealth;
             currentParts = 0;
-            partsBar.value = currentParts;
+            //partsBar.value = currentParts;
         }
     }
 
     void Update()  {
-        if (photonView.isMine && PhotonNetwork.connected) {
+        if (photonView.isMine) {
             if (currentHealth > 0) {
                 fire = Input.GetKey(KeyCode.Mouse0);
 
                 if (fire && !stop) {
-                    StartCoroutine(Fire(lookVec));
+                    StartCoroutine(Fire());
                 }
 
                 if ((maxHealth >= currentHealth) && (currentParts > 0) && !fire) {
@@ -69,12 +68,17 @@ public class PlayerController : Photon.PunBehaviour {
             } else {
                 Death();
             }
+        } else if (!photonView.isMine) {
+            if (fire && !stop) {
+                StartCoroutine(Fire());
+            } 
         }
+        
     }
 
     // Update is called once per frame
     void FixedUpdate() {
-        if (photonView.isMine && PhotonNetwork.connected && 1>2) {
+        if (photonView.isMine) {
             lookVec = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1000);
             lookVec.x -= Screen.width / 2;
             lookVec.y -= Screen.height / 2;
@@ -100,7 +104,7 @@ public class PlayerController : Photon.PunBehaviour {
         }
     }
 
-    IEnumerator Fire (Vector3 look) {
+    IEnumerator Fire () {
         stop = true;
         GameObject thisLeftBullet = Instantiate(bullet, leftBulletSpawn.transform.position, Quaternion.identity) as GameObject;
         GameObject thisRightBullet = Instantiate(bullet, rightBulletSpawn.transform.position, Quaternion.identity) as GameObject;
@@ -108,6 +112,8 @@ public class PlayerController : Photon.PunBehaviour {
         thisRightBullet.transform.rotation = transform.rotation;
         thisLeftBullet.GetComponent<Rigidbody2D>().AddForce(thisLeftBullet.transform.up * bulletSpeed);
         thisRightBullet.GetComponent<Rigidbody2D>().AddForce(thisRightBullet.transform.up * bulletSpeed);
+        Destroy(thisLeftBullet, 0.25f);
+        Destroy(thisRightBullet, 0.25f);
         yield return new WaitForSeconds(0.005f);
         stop = false;
     }
@@ -133,9 +139,15 @@ public class PlayerController : Photon.PunBehaviour {
     }
 
     void Death() {
-        gameCon.gameOver = true;
-        Destroy(gameObject);
+        if (photonView.isMine)
+            PhotonNetwork.Destroy(gameObject);
     }
 
-    void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {}
+    void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
+        if (stream.isWriting) {
+            stream.SendNext(fire);
+        } else {
+            fire = (bool) stream.ReceiveNext();
+        }
+    }
 }

@@ -1610,8 +1610,8 @@ internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
         // extra logging for error debugging (helping developers with a bit of automated analysis)
         if (operationResponse.ReturnCode == 0)
         {
-            if (PhotonNetwork.logLevel >= PhotonLogLevel.Informational)
-                Debug.Log(operationResponse.ToString());
+            //if (PhotonNetwork.logLevel >= PhotonLogLevel.Informational)
+            //    Debug.Log(operationResponse.ToString());
         }
         else
         {
