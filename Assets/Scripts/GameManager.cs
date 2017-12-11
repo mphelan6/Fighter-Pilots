@@ -2,14 +2,23 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : Photon.PunBehaviour {
 
-    public GameObject playerCamera;
+    public GameObject player;
     public GameObject canvas;
     public GameObject eventSystem;
 
+    public bool gameOver = false;
+    public int currentBlimps, currentEnemies, numBlimps, numEnemies, score = 0, highScore;
+    public Text scoreText, highScoreText;
+    public GameObject enemy, blimp, spawnCheck, cam;
+
+    private GameObject firstPlayer, secondPlayer;
+
     public void Start() {
+        /*
         if (eventSystem == null) {
             Debug.LogError("<Color=Red><a>Missing</a></Color> eventSystem Reference. Please set it up in GameObject 'Game Manager'", this);
         } else {
@@ -22,18 +31,127 @@ public class GameManager : Photon.PunBehaviour {
             PhotonNetwork.Instantiate(canvas.name, new Vector3(232f, 205f, 0f), Quaternion.identity, 0);
         }
 
-        if (playerCamera == null) {
+        scoreText.text = "Score: ";
+        highScore = PlayerPrefs.GetInt("Highscore", 0);
+        highScoreText.text = "High Score: " + highScore;*/
+        currentEnemies = 0;
+        currentBlimps = 0;
+
+        if (player == null) {
             Debug.LogError("<Color=Red><a>Missing</a></Color> playerCamera Reference. Please set it up in GameObject 'Game Manager'", this);
         } else {
-            PhotonNetwork.Instantiate(playerCamera.name, new Vector3(0f, 0f, -10f), Quaternion.identity, 0);
+            /*if (photonView.isMine || PhotonNetwork.connected == false) { //for testing offline
+                thisPlayer = Instantiate(player, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+            }*/
+            if (PhotonNetwork.isMasterClient) {
+                firstPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(-2.5f, 0, 0), Quaternion.identity, 0);
+                cam.GetComponent<CameraController>().player = firstPlayer;
+                Instantiate(cam, new Vector3(-2.5f, 0, -10), Quaternion.identity);     
+            } else {
+                secondPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(2.5f, 0, 0), Quaternion.identity, 0);
+                cam.GetComponent<CameraController>().player = secondPlayer;
+                Instantiate(cam, new Vector3(2.5f, 0, -10), Quaternion.identity);
+            }
         }
+
+        if (PhotonNetwork.isMasterClient)
+            Spawn();
     }
 
     // Called when the local player left the room. We need to load the launcher scene.
     public void Update() {
-        if (Input.GetKeyDown(KeyCode.Q)) {
+        if (Input.GetKeyDown(KeyCode.Q) || gameOver) {
             LeaveRoom();
         }
+
+        /*
+        scoreText.text = "Score: " + score;
+        if (score > highScore) {
+            highScore = score;
+            highScoreText.text = "High Score: " + highScore;
+            PlayerPrefs.SetInt("Highscore", highScore);
+            PlayerPrefs.Save();
+        }*/
+
+        if (PhotonNetwork.isMasterClient) {
+            if (currentEnemies < numEnemies || currentBlimps < numBlimps)
+                Spawn();
+        }
+
+        if (firstPlayer == null && secondPlayer == null) {
+            gameOver = true;
+        }
+    }
+
+    void Spawn() {
+        if (firstPlayer != null && secondPlayer != null) {
+            Vector3 firstPlayerPos, secondPlayerPos;
+            Vector3 check;
+            while (currentEnemies < numEnemies) {
+                if (currentEnemies % 2 == 0) { // even number of enemies
+                    firstPlayerPos = firstPlayer.transform.position;
+                    check = RandomCircle(firstPlayerPos, UnityEngine.Random.Range(20f, 40f));
+                    GameObject thisCheck = PhotonNetwork.Instantiate(spawnCheck.name, check, Quaternion.identity, 0) as GameObject;
+                    if (thisCheck.GetComponent<SpawnCheck>().isEmpty) {
+                        Quaternion enemyRot = new Quaternion(Quaternion.identity.x, Quaternion.identity.y, UnityEngine.Random.rotation.z, Quaternion.identity.w);
+                        PhotonNetwork.Instantiate(enemy.name, check, enemyRot, 0);
+                        currentEnemies++;
+                    }
+                    if (photonView.isMine) {
+                        PhotonNetwork.Destroy(thisCheck);
+                    }
+                } else if (currentEnemies % 2 == 1) { // odd number of enemies
+                    secondPlayerPos = secondPlayer.transform.position;
+                    check = RandomCircle(secondPlayerPos, UnityEngine.Random.Range(20f, 40f));
+                    GameObject thisCheck = PhotonNetwork.Instantiate(spawnCheck.name, check, Quaternion.identity, 0) as GameObject;
+                    if (thisCheck.GetComponent<SpawnCheck>().isEmpty) {
+                        Quaternion enemyRot = new Quaternion(Quaternion.identity.x, Quaternion.identity.y, UnityEngine.Random.rotation.z, Quaternion.identity.w);
+                        PhotonNetwork.Instantiate(enemy.name, check, enemyRot, 0);
+                        currentEnemies++;
+                    }
+                    if (photonView.isMine) {
+                        PhotonNetwork.Destroy(thisCheck);
+                    }
+                }
+            }
+            while (currentBlimps < numBlimps) {
+                if (currentBlimps % 2 == 0) { // even number of blimps
+                    firstPlayerPos = firstPlayer.transform.position;
+                    check = RandomCircle(firstPlayerPos, UnityEngine.Random.Range(20f, 40f));
+                    GameObject thisCheck = PhotonNetwork.Instantiate(spawnCheck.name, check, Quaternion.identity, 0) as GameObject;
+                    if (thisCheck.GetComponent<SpawnCheck>().isEmpty) {
+                        Quaternion blimpRot = new Quaternion(Quaternion.identity.x, Quaternion.identity.y, UnityEngine.Random.rotation.z, Quaternion.identity.w);
+                        PhotonNetwork.Instantiate(blimp.name, check, blimpRot, 0);
+                        currentBlimps++;
+                    }
+                    if (photonView.isMine) {
+                        PhotonNetwork.Destroy(thisCheck);
+                    }
+                } else if (currentBlimps % 2 ==1) { // odd number of blimps
+                    secondPlayerPos = secondPlayer.transform.position;
+                    check = RandomCircle(secondPlayerPos, UnityEngine.Random.Range(20f, 40f));
+                    GameObject thisCheck = PhotonNetwork.Instantiate(spawnCheck.name, check, Quaternion.identity, 0) as GameObject;
+                    if (thisCheck.GetComponent<SpawnCheck>().isEmpty) {
+                        Quaternion blimpRot = new Quaternion(Quaternion.identity.x, Quaternion.identity.y, UnityEngine.Random.rotation.z, Quaternion.identity.w);
+                        PhotonNetwork.Instantiate(blimp.name, check, blimpRot, 0);
+                        currentBlimps++;
+                    }
+                    if (photonView.isMine) {
+                        PhotonNetwork.Destroy(thisCheck);
+                    }
+                }
+            }
+        }
+    }
+
+    //helper functions
+    Vector3 RandomCircle(Vector3 center, float radius) {
+        float ang = UnityEngine.Random.value * 360;
+        Vector3 pos;
+        pos.x = center.x + radius * Mathf.Sin(ang * Mathf.Deg2Rad);
+        pos.y = center.y + radius * Mathf.Cos(ang * Mathf.Deg2Rad);
+        pos.z = center.z;
+        return pos;
     }
 
     public override void OnLeftRoom() {

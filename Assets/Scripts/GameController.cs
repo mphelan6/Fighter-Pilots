@@ -16,7 +16,7 @@ public class GameController : Photon.MonoBehaviour {
 	// Use this for initialization
 
     void Awake () {
-        Screen.orientation = ScreenOrientation.Landscape;
+        //Screen.orientation = ScreenOrientation.Landscape;
     }
 
     void Start() {
@@ -25,17 +25,12 @@ public class GameController : Photon.MonoBehaviour {
         highScoreText.text = "High Score: " + highScore;
         currentEnemies = 0;
         currentBlimps = 0;
-        /*if (photonView.isMine || PhotonNetwork.connected == false) { //for testing offline
-            thisPlayer = Instantiate(player, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-        }*/
         if (PlayerController.LocalPlayerInstance == null) {
             if (photonView.isMine) {
                 if (PhotonNetwork.isMasterClient) {
-                    thisPlayer = PhotonNetwork.Instantiate(player.name, launcher.GetComponent<Launcher>().spawns[0], Quaternion.identity, 0) as GameObject;
                     offset = transform.position - thisPlayer.transform.position;
                 }
                 if (!PhotonNetwork.isMasterClient) {
-                    thisPlayer = PhotonNetwork.Instantiate(player.name, launcher.GetComponent<Launcher>().spawns[1], Quaternion.identity, 0) as GameObject;
                     offset = transform.position - thisPlayer.transform.position;
                 }
             }

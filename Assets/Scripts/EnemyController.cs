@@ -162,7 +162,7 @@ public class EnemyController : MonoBehaviour {
     public void Killed()
     {
         Vector3 temp = transform.position;
-        Instantiate(parts, temp, Quaternion.identity);
+        PhotonNetwork.Instantiate(parts.name, temp, Quaternion.identity, 0);
         Destroy(gameObject);
         if (diffLvl == EASY) {
             cam.GetComponent<GameController>().score += 25;
