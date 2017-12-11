@@ -1,45 +1,88 @@
 fileFormatVersion: 2
-guid: ce0b5199a7fcaba40a82c57004924aa7
-timeCreated: 1513025135
+guid: 1aba724aa446f2344a03d3fd42dcf36f
+timeCreated: 1513025223
 licenseType: Free
 ModelImporter:
   serializedVersion: 22
   fileIDToRecycleName:
-    100000: //RootNode
-    100002: Body
-    100004: Body_MeshPart0
-    100006: Body_MeshPart1
-    100008: Horizontal_Wing
-    100010: Verticle_Wing
-    400000: //RootNode
-    400002: Body
-    400004: Body_MeshPart0
-    400006: Body_MeshPart1
-    400008: Horizontal_Wing
-    400010: Verticle_Wing
-    2300000: Body_MeshPart0
-    2300002: Body_MeshPart1
-    2300004: Horizontal_Wing
-    2300006: Verticle_Wing
-    3300000: Body_MeshPart0
-    3300002: Body_MeshPart1
-    3300004: Horizontal_Wing
-    3300006: Verticle_Wing
-    4300000: Verticle_Wing
-    4300002: Body_MeshPart0
-    4300004: Body_MeshPart1
-    4300006: Horizontal_Wing
+    100000: Body
+    100002: Cylinder
+    100004: Cylinder.001
+    100006: //RootNode
+    100008: LowerWing
+    100010: prop
+    100012: support1
+    100014: support1.001
+    100016: support2
+    100018: support2.001
+    100020: tailhorr
+    100022: tailvert
+    100024: Wing
+    400000: Body
+    400002: Cylinder
+    400004: Cylinder.001
+    400006: //RootNode
+    400008: LowerWing
+    400010: prop
+    400012: support1
+    400014: support1.001
+    400016: support2
+    400018: support2.001
+    400020: tailhorr
+    400022: tailvert
+    400024: Wing
+    2300000: Body
+    2300002: Cylinder
+    2300004: Cylinder.001
+    2300006: LowerWing
+    2300008: prop
+    2300010: support1
+    2300012: support1.001
+    2300014: support2
+    2300016: support2.001
+    2300018: tailhorr
+    2300020: tailvert
+    2300022: Wing
+    3300000: Body
+    3300002: Cylinder
+    3300004: Cylinder.001
+    3300006: LowerWing
+    3300008: prop
+    3300010: support1
+    3300012: support1.001
+    3300014: support2
+    3300016: support2.001
+    3300018: tailhorr
+    3300020: tailvert
+    3300022: Wing
+    4300000: prop
+    4300002: Cylinder
+    4300004: tailhorr
+    4300006: tailvert
+    4300008: LowerWing
+    4300010: Wing
+    4300012: Body
+    4300014: Cylinder.001
+    4300016: support2.001
+    4300018: support1.001
+    4300020: support1
+    4300022: support2
   externalObjects:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: bodyMat
-    second: {fileID: 2100000, guid: cfbca4a74acd9334e9fc565b595fef7b, type: 2}
+      name: mainColor
+    second: {fileID: 2100000, guid: 8bbd176fde23f6e4fac9310acb104c8d, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: wingMat
-    second: {fileID: 2100000, guid: 39e6d229f25b2a24c9fe67eaf7622675, type: 2}
+      name: topWing
+    second: {fileID: 2100000, guid: c3b2d5c4f3b0c2744930b9f063169e16, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: whiteColor
+    second: {fileID: 2100000, guid: 74d9f94382a9b1c4b9f3f8835fb57569, type: 2}
   materials:
     importMaterials: 1
     materialName: 0
