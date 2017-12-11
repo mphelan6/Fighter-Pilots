@@ -99,7 +99,8 @@ public class PlayerController : Photon.PunBehaviour {
             }
             rb.AddForce(transform.up * currentSpeed);
         } else if (!photonView.isMine) {
-            rb.AddForce(transform.up * currentSpeed);
+            if (transform.up != null)
+                rb.AddForce(transform.up * currentSpeed);
         }
     }
 
