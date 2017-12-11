@@ -31,9 +31,9 @@ public class PlayerPlane : MonoBehaviour {
             if (thisPV.photonView.isMine) {
                 PhotonNetwork.Destroy(other.gameObject);
             }
-            playerCon.currentHealth -= 30;
+            playerCon.currentHealth -= 20;
         } else if (other.tag.Equals("Enemy")) {
-            playerCon.currentHealth -= 2.5f;
+            playerCon.currentHealth -= 5f;
             playerCon.healthBar.value = playerCon.currentHealth;
         } else if ((other.tag.Equals("Parts")) && (playerCon.currentParts <= playerCon.maxParts - 10)) {
             if (thisPV.photonView.isMine) {

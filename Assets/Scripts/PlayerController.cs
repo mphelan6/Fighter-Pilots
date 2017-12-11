@@ -72,16 +72,13 @@ public class PlayerController : Photon.PunBehaviour {
             if (fire && !stop) {
                 StartCoroutine(Fire());
             } 
-        }
-        
+        } 
     }
 
     // Update is called once per frame
     void FixedUpdate() {
         if (photonView.isMine) {
-            lookVec = new Vector3(Input.mousePosition.x, Input.mousePosition.y, 1000);
-            lookVec.x -= Screen.width / 2;
-            lookVec.y -= Screen.height / 2;
+            lookVec = new Vector3(Input.mousePosition.x - Screen.width / 2, Input.mousePosition.y - Screen.height / 2, 1000);
             if (lookVec.x != 0 && lookVec.y != 0) {
                 lookAt = Quaternion.LookRotation(lookVec, Vector3.back);
                 float angle = Quaternion.Angle(lookAt, transform.rotation);
@@ -95,6 +92,25 @@ public class PlayerController : Photon.PunBehaviour {
                         currentSpeed = maxSpeed;
                 }
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
+            } else if (currentSpeed < maxSpeed) {
+                currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
+                if (currentSpeed > maxSpeed)
+                    currentSpeed = maxSpeed;
+            }
+            rb.AddForce(transform.up * currentSpeed);
+        } else if (!photonView.isMine) {
+            if (lookVec.x != 0 && lookVec.y != 0) {
+                lookAt = Quaternion.LookRotation(lookVec, Vector3.back);
+                float angle = Quaternion.Angle(lookAt, transform.rotation);
+                if (angle >= 5.0f && currentSpeed >= minSpeed) {
+                    currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
+                    if (currentSpeed < minSpeed)
+                        currentSpeed = minSpeed;
+                } else if (angle < 5.0f && currentSpeed < maxSpeed) {
+                    currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
+                    if (currentSpeed > maxSpeed)
+                        currentSpeed = maxSpeed;
+                } transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
             } else if (currentSpeed < maxSpeed) {
                 currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
                 if (currentSpeed > maxSpeed)
@@ -146,8 +162,12 @@ public class PlayerController : Photon.PunBehaviour {
     void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.isWriting) {
             stream.SendNext(fire);
+            stream.SendNext(lookVec);
+            stream.SendNext(currentSpeed);
         } else {
             fire = (bool) stream.ReceiveNext();
+            lookVec = (Vector3) stream.ReceiveNext();
+            currentSpeed = (float)stream.ReceiveNext();
         }
     }
 }
