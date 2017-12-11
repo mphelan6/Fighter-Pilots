@@ -33,7 +33,7 @@ public class PlayerController : Photon.PunBehaviour {
 
     // Use this for initialization
     void Start() {
-        if (photonView.isMine && PhotonNetwork.connected) {
+        if (photonView.isMine) {
             rb = GetComponent<Rigidbody2D>();
             /*
             Slider[] sliders = FindObjectsOfType<Slider>();
@@ -50,6 +50,10 @@ public class PlayerController : Photon.PunBehaviour {
             //healthBar.value = currentHealth;
             currentParts = 0;
             //partsBar.value = currentParts;
+        } else if (!photonView.isMine) {
+            rb = GetComponent<Rigidbody2D>();
+            midSpeed = (maxSpeed + minSpeed) / 2f;
+            currentSpeed = midSpeed;
         }
     }
 
@@ -99,7 +103,7 @@ public class PlayerController : Photon.PunBehaviour {
             }
             rb.AddForce(transform.up * currentSpeed);
         } else if (!photonView.isMine) {
-            if (transform.up != null)
+            if (transform.up != null && rb)
                 rb.AddForce(transform.up * currentSpeed);
         }
     }
