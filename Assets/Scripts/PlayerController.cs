@@ -13,7 +13,6 @@ public class PlayerController : Photon.PunBehaviour {
     public int maxHealth, currentParts, maxParts;
     public float currentSpeed, maxSpeed, minSpeed, bulletSpeed, turnRate;
     public Slider healthBar, partsBar;
-    public GameObject thisCam;
     public GameObject bullet, leftBulletSpawn, rightBulletSpawn;
 
     [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
