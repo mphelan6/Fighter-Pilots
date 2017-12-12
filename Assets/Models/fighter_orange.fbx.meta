@@ -67,6 +67,18 @@ ModelImporter:
     4300018: support1.001
     4300020: support1
     4300022: support2
+    6400000: Body
+    6400002: Cylinder
+    6400004: Cylinder.001
+    6400006: LowerWing
+    6400008: prop
+    6400010: support1
+    6400012: support1.001
+    6400014: support2
+    6400016: support2.001
+    6400018: tailhorr
+    6400020: tailvert
+    6400022: Wing
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -114,7 +126,7 @@ ModelImporter:
     lODScreenPercentages: []
     globalScale: 1
     meshCompression: 0
-    addColliders: 0
+    addColliders: 1
     importVisibility: 1
     importBlendShapes: 1
     importCameras: 1

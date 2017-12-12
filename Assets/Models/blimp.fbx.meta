@@ -29,6 +29,10 @@ ModelImporter:
     4300002: Body_MeshPart0
     4300004: Body_MeshPart1
     4300006: Horizontal_Wing
+    6400000: Body_MeshPart0
+    6400002: Body_MeshPart1
+    6400004: Horizontal_Wing
+    6400006: Verticle_Wing
   externalObjects:
   - first:
       type: UnityEngine:Material
@@ -71,7 +75,7 @@ ModelImporter:
     lODScreenPercentages: []
     globalScale: 1
     meshCompression: 0
-    addColliders: 0
+    addColliders: 1
     importVisibility: 1
     importBlendShapes: 1
     importCameras: 1
