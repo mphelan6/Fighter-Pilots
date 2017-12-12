@@ -13,10 +13,14 @@ public class PlayerController : Photon.PunBehaviour {
     public int maxHealth, currentParts, maxParts;
     public float currentSpeed, maxSpeed, minSpeed, bulletSpeed, turnRate;
     public Slider healthBar, partsBar;
+    public GameObject thisCam;
     public GameObject bullet, leftBulletSpawn, rightBulletSpawn;
 
     [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
     public static GameObject LocalPlayerInstance;
+
+    [Tooltip("The Player's UI GameObject Prefab")]
+    public GameObject PlayerUiPrefab;
 
     private bool stop = false;
     private float midSpeed;
@@ -24,6 +28,7 @@ public class PlayerController : Photon.PunBehaviour {
     private Vector3 lookVec;
     private Quaternion lookAt;
     private GameObject controls;
+    private GameObject _uiGo;
 
     private void Awake() {
         if (photonView.isMine) {
@@ -33,6 +38,18 @@ public class PlayerController : Photon.PunBehaviour {
 
     // Use this for initialization
     void Start() {
+        if (PlayerUiPrefab != null) {
+            if (photonView.isMine) {
+                _uiGo = PhotonNetwork.Instantiate(PlayerUiPrefab.name, new Vector3 (0, 0, 0), Quaternion.identity, 0) as GameObject;
+                _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+            } else if (!photonView.isMine) {
+                _uiGo = PhotonNetwork.Instantiate(PlayerUiPrefab.name, new Vector3(0, 0, 0), Quaternion.identity, 0) as GameObject;
+                _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+            }
+        } else {
+            Debug.LogWarning("<Color=Red><a>Missing</a></Color> PlayerUiPrefab reference on player Prefab.", this);
+        }
+
         if (photonView.isMine) {
             rb = GetComponent<Rigidbody2D>();
             /*

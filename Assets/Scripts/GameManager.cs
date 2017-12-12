@@ -7,36 +7,15 @@ using UnityEngine.UI;
 public class GameManager : Photon.PunBehaviour {
 
     public GameObject player;
-    public GameObject canvas;
-    public GameObject eventSystem;
 
     public bool gameOver = false;
     public int currentBlimps, currentEnemies, numBlimps, numEnemies, score = 0, highScore;
     public Text scoreText, highScoreText;
-    public GameObject enemy, blimp, spawnCheck, cam;
+    public GameObject enemy, blimp, spawnCheck, cam, cam1, cam2;
 
     private GameObject firstPlayer, secondPlayer;
 
     public void Start() {
-        /*
-        if (eventSystem == null) {
-            Debug.LogError("<Color=Red><a>Missing</a></Color> eventSystem Reference. Please set it up in GameObject 'Game Manager'", this);
-        } else {
-            PhotonNetwork.Instantiate(eventSystem.name, new Vector3(0f, 0f, 0f), Quaternion.identity, 0);
-        }
-
-        if (canvas == null) {
-            Debug.LogError("<Color=Red><a>Missing</a></Color> canvas Reference. Please set it up in GameObject 'Game Manager'", this);
-        } else {
-            PhotonNetwork.Instantiate(canvas.name, new Vector3(232f, 205f, 0f), Quaternion.identity, 0);
-        }
-
-        scoreText.text = "Score: ";
-        highScore = PlayerPrefs.GetInt("Highscore", 0);
-        highScoreText.text = "High Score: " + highScore;*/
-        currentEnemies = 0;
-        currentBlimps = 0;
-
         if (player == null) {
             Debug.LogError("<Color=Red><a>Missing</a></Color> playerCamera Reference. Please set it up in GameObject 'Game Manager'", this);
         } else {
@@ -46,13 +25,20 @@ public class GameManager : Photon.PunBehaviour {
             if (PhotonNetwork.isMasterClient) {
                 firstPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(-2.5f, 0, 0), Quaternion.identity, 0);
                 cam.GetComponent<CameraController>().player = firstPlayer;
-                Instantiate(cam, new Vector3(-2.5f, 0, -10), Quaternion.identity);     
+                Instantiate(cam, new Vector3(-2.5f, 0, -10), Quaternion.identity);              
             } else {
                 secondPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(2.5f, 0, 0), Quaternion.identity, 0);
                 cam.GetComponent<CameraController>().player = secondPlayer;
                 Instantiate(cam, new Vector3(2.5f, 0, -10), Quaternion.identity);
             }
         }
+
+        /*
+        scoreText.text = "Score: ";
+        highScore = PlayerPrefs.GetInt("Highscore", 0);
+        highScoreText.text = "High Score: " + highScore;*/
+        currentEnemies = 0;
+        currentBlimps = 0;
 
         if (PhotonNetwork.isMasterClient)
             Spawn();
