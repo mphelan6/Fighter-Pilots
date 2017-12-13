@@ -10,18 +10,15 @@ public class GameManager : Photon.PunBehaviour {
 
     public bool gameOver = false;
     public int currentBlimps, currentEnemies, numBlimps, numEnemies, score = 0, highScore;
-    public Text scoreText, highScoreText;
-    public GameObject enemy, blimp, spawnCheck, cam, cam1, cam2;
+    public Text highScoreText;
+    public GameObject enemy, blimp, spawnCheck, cam, cam1, cam2, ScoreTextPrefab;
 
-    private GameObject firstPlayer, secondPlayer;
+    private GameObject firstPlayer, secondPlayer, scoreText;
 
     public void Start() {
         if (player == null) {
             Debug.LogError("<Color=Red><a>Missing</a></Color> playerCamera Reference. Please set it up in GameObject 'Game Manager'", this);
         } else {
-            /*if (photonView.isMine || PhotonNetwork.connected == false) { //for testing offline
-                thisPlayer = Instantiate(player, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-            }*/
             if (PhotonNetwork.isMasterClient) {
                 firstPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(-2.5f, 0, 0), Quaternion.identity, 0);
                 cam.GetComponent<CameraController>().player = firstPlayer;
@@ -30,6 +27,15 @@ public class GameManager : Photon.PunBehaviour {
                 secondPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(2.5f, 0, 0), Quaternion.identity, 0);
                 cam.GetComponent<CameraController>().player = secondPlayer;
                 Instantiate(cam, new Vector3(2.5f, 0, -10), Quaternion.identity);
+            }
+        }
+
+        if (ScoreTextPrefab == null) {
+            Debug.LogWarning("<Color=Red><a>Missing</a></Color> ScoreUIPrefab reference on GameManager Prefab.", this);
+        } else {
+            if (PhotonNetwork.isMasterClient) {
+                scoreText = PhotonNetwork.Instantiate(ScoreTextPrefab.name, new Vector3(100, 390, 0), Quaternion.identity, 0);
+                scoreText.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
         }
 

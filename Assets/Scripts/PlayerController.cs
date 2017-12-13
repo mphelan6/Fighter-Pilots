@@ -12,14 +12,16 @@ public class PlayerController : Photon.PunBehaviour {
 
     public int maxHealth, currentParts, maxParts;
     public float currentSpeed, maxSpeed, minSpeed, bulletSpeed, turnRate;
-    public Slider healthBar, partsBar;
     public GameObject bullet, leftBulletSpawn, rightBulletSpawn;
 
     [Tooltip("The local player instance. Use this to know if the local player is represented in the Scene")]
     public static GameObject LocalPlayerInstance;
 
-    [Tooltip("The Player's UI GameObject Prefab")]
-    public GameObject PlayerUiPrefab;
+    [Tooltip("The Player's Health UI GameObject Prefab")]
+    public GameObject HealthUIPrefab;
+
+    [Tooltip("The Player's Parts UI GameObject Prefab")]
+    public GameObject PartsUIPrefab;
 
     private bool stop = false;
     private float midSpeed;
@@ -27,7 +29,7 @@ public class PlayerController : Photon.PunBehaviour {
     private Vector3 lookVec;
     private Quaternion lookAt;
     private GameObject controls;
-    private GameObject _uiGo;
+    private GameObject healthUI, partsUI;
 
     private void Awake() {
         if (photonView.isMine) {
@@ -37,35 +39,33 @@ public class PlayerController : Photon.PunBehaviour {
 
     // Use this for initialization
     void Start() {
-        if (PlayerUiPrefab != null) {
+        if (HealthUIPrefab != null) {
             if (photonView.isMine) {
-                _uiGo = PhotonNetwork.Instantiate(PlayerUiPrefab.name, new Vector3 (0, 0, 0), Quaternion.identity, 0) as GameObject;
-                _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+                healthUI = PhotonNetwork.Instantiate(HealthUIPrefab.name, new Vector3 (0, 0, 0), Quaternion.identity, 0) as GameObject;
+                healthUI.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             } else if (!photonView.isMine) {
-                _uiGo = PhotonNetwork.Instantiate(PlayerUiPrefab.name, new Vector3(0, 0, 0), Quaternion.identity, 0) as GameObject;
-                _uiGo.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+                healthUI = PhotonNetwork.Instantiate(HealthUIPrefab.name, new Vector3(0, 0, 0), Quaternion.identity, 0) as GameObject;
+                healthUI.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
         } else {
-            Debug.LogWarning("<Color=Red><a>Missing</a></Color> PlayerUiPrefab reference on player Prefab.", this);
+            Debug.LogWarning("<Color=Red><a>Missing</a></Color> HealthUIPrefab reference on player Prefab.", this);
+        }
+
+        if (PartsUIPrefab != null) {
+            if (photonView.isMine) {
+                partsUI = Instantiate(PartsUIPrefab, new Vector3(650, 390, 0), Quaternion.identity) as GameObject;
+                partsUI.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
+            }
+        } else {
+            Debug.LogWarning("<Color=Red><a>Missing</a></Color> PartsUIPrefab reference on player Prefab.", this);
         }
 
         if (photonView.isMine) {
             rb = GetComponent<Rigidbody2D>();
-            /*
-            Slider[] sliders = FindObjectsOfType<Slider>();
-            if (sliders[0].tag.Equals("Health Bar")) {
-                healthBar = sliders[0];
-                partsBar = sliders[1];
-            } else {
-                partsBar = sliders[0];
-                healthBar = sliders[1];
-            } */
             currentHealth = maxHealth;
             midSpeed = (maxSpeed + minSpeed) / 2f;
             currentSpeed = midSpeed;
-            //healthBar.value = currentHealth;
             currentParts = 0;
-            //partsBar.value = currentParts;
         } else if (!photonView.isMine) {
             rb = GetComponent<Rigidbody2D>();
             midSpeed = (maxSpeed + minSpeed) / 2f;
@@ -159,9 +159,7 @@ public class PlayerController : Photon.PunBehaviour {
         while((currentHealth < maxHealth) && (currentParts > 0) && !fire && !stop) {
             stop = true;
             currentHealth += 2;
-            healthBar.value = currentHealth;
             currentParts -= 1;
-            partsBar.value = currentParts;
 
             fire = Input.GetKey(KeyCode.Mouse0);
 
