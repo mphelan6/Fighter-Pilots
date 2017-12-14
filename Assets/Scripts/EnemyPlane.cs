@@ -17,10 +17,10 @@ public class EnemyPlane : Photon.MonoBehaviour {
 	
 	}
 
-    void OnTriggerEnter2D(Collider2D other) {
+    void OnTriggerEnter(Collider other) {
         if (other.tag.Equals("Bullet")) {
             PhotonNetwork.Destroy(other.gameObject);
-            enemyCon.currentHealth -= 0.8f;
+            enemyCon.currentHealth -= 1;
         } else if (other.tag.Equals("Blimp")) {
             enemyCon.Death();
         } else if (other.tag.Equals("Cannonball")) {
@@ -34,7 +34,7 @@ public class EnemyPlane : Photon.MonoBehaviour {
         }
     }
 
-    void OnTriggerExit2D(Collider2D other) {
+    void OnTriggerExit(Collider other) {
         if (other.tag.Equals("Proximity")) {
             enemyCon.Death();
             PhotonNetwork.Destroy(enemyCon.gameObject);

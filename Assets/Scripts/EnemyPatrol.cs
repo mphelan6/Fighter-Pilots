@@ -29,7 +29,7 @@ public class EnemyPatrol : MonoBehaviour {
         transform.position = parent.transform.position;
     }
 
-    void OnTriggerEnter2D(Collider2D other) {
+    void OnTriggerEnter(Collider other) {
         if (other.tag.Equals("Player") && !entered) {
             entered = true;
             exited = false;
@@ -37,7 +37,7 @@ public class EnemyPatrol : MonoBehaviour {
         }
     }
 
-    void OnTriggerExit2D(Collider2D other) {
+    void OnTriggerExit(Collider other) {
         if (other.tag.Equals("Player") && !exited) {
             exited = true;
             entered = false;

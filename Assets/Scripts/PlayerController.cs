@@ -25,7 +25,7 @@ public class PlayerController : Photon.PunBehaviour {
 
     private bool stop = false;
     private float midSpeed;
-    private Rigidbody2D rb;
+    private Rigidbody rb;
     private Vector3 lookVec;
     private Quaternion lookAt;
     private GameObject controls;
@@ -61,13 +61,13 @@ public class PlayerController : Photon.PunBehaviour {
         }
 
         if (photonView.isMine) {
-            rb = GetComponent<Rigidbody2D>();
+            rb = GetComponent<Rigidbody>();
             currentHealth = maxHealth;
             midSpeed = (maxSpeed + minSpeed) / 2f;
             currentSpeed = midSpeed;
             currentParts = 0;
         } else if (!photonView.isMine) {
-            rb = GetComponent<Rigidbody2D>();
+            rb = GetComponent<Rigidbody>();
             midSpeed = (maxSpeed + minSpeed) / 2f;
             currentSpeed = midSpeed;
         }
@@ -147,8 +147,8 @@ public class PlayerController : Photon.PunBehaviour {
         GameObject thisRightBullet = Instantiate(bullet, rightBulletSpawn.transform.position, Quaternion.identity) as GameObject;
         thisLeftBullet.transform.rotation = transform.rotation;
         thisRightBullet.transform.rotation = transform.rotation;
-        thisLeftBullet.GetComponent<Rigidbody2D>().AddForce(thisLeftBullet.transform.up * bulletSpeed);
-        thisRightBullet.GetComponent<Rigidbody2D>().AddForce(thisRightBullet.transform.up * bulletSpeed);
+        thisLeftBullet.GetComponent<Rigidbody>().AddForce(thisLeftBullet.transform.up * bulletSpeed);
+        thisRightBullet.GetComponent<Rigidbody>().AddForce(thisRightBullet.transform.up * bulletSpeed);
         Destroy(thisLeftBullet, 0.25f);
         Destroy(thisRightBullet, 0.25f);
         yield return new WaitForSeconds(0.005f);

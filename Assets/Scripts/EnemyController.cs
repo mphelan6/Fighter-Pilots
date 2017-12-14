@@ -19,7 +19,7 @@ public class EnemyController : MonoBehaviour {
     private float maxSpeed, minSpeed, turnRate, patrolRad, radius, lookWait;
     private Vector3 center, temp, look, spawnPos, wayPoint;
     private Quaternion rot, lookAt;
-    private Rigidbody2D rb;
+    private Rigidbody rb;
     private Animator enemyAnim;
     private GameObject player, cam;
 
@@ -33,7 +33,7 @@ public class EnemyController : MonoBehaviour {
     // Use this for initialization
     void Start () {
         player = GameObject.FindGameObjectWithTag("Player");
-        rb = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody>();
         cam = GameObject.FindGameObjectWithTag("MainCamera");
         spawnPos = transform.position;
     }
@@ -159,8 +159,7 @@ public class EnemyController : MonoBehaviour {
         transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
         stop = false;
     }
-    public void Killed()
-    {
+    public void Killed() {
         Vector3 temp = transform.position;
         PhotonNetwork.Instantiate(parts.name, temp, Quaternion.identity, 0);
         Destroy(gameObject);
@@ -176,7 +175,7 @@ public class EnemyController : MonoBehaviour {
         mediumRate -= 1;
     }
 
-    // Will be called AUTOMATICALLY after Killed() by EnemyPlane.OnTriggerExit2D()
+    // Will be called AUTOMATICALLY after Killed() by EnemyPlane.OnTriggerExit()
     public void Death() { 
         cam.GetComponent<GameController>().currentEnemies -= 1;
     }
