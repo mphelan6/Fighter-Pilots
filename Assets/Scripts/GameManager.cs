@@ -9,8 +9,7 @@ public class GameManager : Photon.PunBehaviour {
     public GameObject player;
 
     public bool gameOver = false;
-    public int currentBlimps, currentEnemies, numBlimps, numEnemies, score = 0, highScore;
-    public Text highScoreText;
+    public int currentBlimps, currentEnemies, numBlimps, numEnemies, score = 0;
     public GameObject enemy, blimp, spawnCheck, cam, cam1, cam2, ScoreTextPrefab;
 
     private GameObject firstPlayer, secondPlayer, scoreText;
@@ -31,18 +30,13 @@ public class GameManager : Photon.PunBehaviour {
         }
 
         if (ScoreTextPrefab == null) {
-            Debug.LogWarning("<Color=Red><a>Missing</a></Color> ScoreUIPrefab reference on GameManager Prefab.", this);
+            Debug.LogWarning("<Color=Red><a>Missing</a></Color> ScoreTextPrefab reference on GameManager Prefab.", this);
         } else {
             if (PhotonNetwork.isMasterClient) {
                 scoreText = PhotonNetwork.Instantiate(ScoreTextPrefab.name, new Vector3(100, 390, 0), Quaternion.identity, 0);
                 scoreText.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
         }
-
-        /*
-        scoreText.text = "Score: ";
-        highScore = PlayerPrefs.GetInt("Highscore", 0);
-        highScoreText.text = "High Score: " + highScore;*/
         currentEnemies = 0;
         currentBlimps = 0;
 
@@ -55,15 +49,6 @@ public class GameManager : Photon.PunBehaviour {
         if (Input.GetKeyDown(KeyCode.Q) || gameOver) {
             LeaveRoom();
         }
-
-        /*
-        scoreText.text = "Score: " + score;
-        if (score > highScore) {
-            highScore = score;
-            highScoreText.text = "High Score: " + highScore;
-            PlayerPrefs.SetInt("Highscore", highScore);
-            PlayerPrefs.Save();
-        }*/
 
         if (PhotonNetwork.isMasterClient) {
             if (currentEnemies < numEnemies || currentBlimps < numBlimps)
