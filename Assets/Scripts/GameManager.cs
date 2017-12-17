@@ -11,8 +11,9 @@ public class GameManager : Photon.PunBehaviour {
     public bool gameOver = false;
     public int currentBlimps, currentEnemies, numBlimps, numEnemies, score = 0;
     public GameObject enemy, blimp, spawnCheck, cam, cam1, cam2, ScoreTextPrefab;
+    public GameObject[] players;
 
-    private GameObject firstPlayer, secondPlayer, scoreText;
+    private GameObject firstPlayer, secondPlayer, scoreText, thisEnemy, thisBlimp;
 
     public void Start() {
         if (player == null) {
@@ -26,6 +27,10 @@ public class GameManager : Photon.PunBehaviour {
                 secondPlayer = PhotonNetwork.Instantiate(player.name, new Vector3(2.5f, 0, 0), Quaternion.identity, 0);
                 cam.GetComponent<CameraController>().player = secondPlayer;
                 Instantiate(cam, new Vector3(2.5f, 0, -10), Quaternion.identity);
+            }
+
+            if (PhotonNetwork.isMasterClient) {
+                players = GameObject.FindGameObjectsWithTag("Player");
             }
         }
 
@@ -55,23 +60,25 @@ public class GameManager : Photon.PunBehaviour {
                 Spawn();
         }
 
-        if (firstPlayer == null && secondPlayer == null) {
+        if (PhotonNetwork.isMasterClient) {
+            if (players[0] == null && players[1] == null)
             gameOver = true;
         }
     }
 
     void Spawn() {
-        if (firstPlayer != null && secondPlayer != null) {
+        if (!gameOver) {
             Vector3 firstPlayerPos, secondPlayerPos;
             Vector3 check;
             while (currentEnemies < numEnemies) {
-                if (currentEnemies % 2 == 0) { // even number of enemies
+                if (currentEnemies == 0 || currentEnemies % 2 == 0) { // even number of enemies
                     firstPlayerPos = firstPlayer.transform.position;
                     check = RandomCircle(firstPlayerPos, UnityEngine.Random.Range(20f, 40f));
                     GameObject thisCheck = PhotonNetwork.Instantiate(spawnCheck.name, check, Quaternion.identity, 0) as GameObject;
                     if (thisCheck.GetComponent<SpawnCheck>().isEmpty) {
                         Quaternion enemyRot = new Quaternion(Quaternion.identity.x, Quaternion.identity.y, UnityEngine.Random.rotation.z, Quaternion.identity.w);
-                        PhotonNetwork.Instantiate(enemy.name, check, enemyRot, 0);
+                        thisEnemy = PhotonNetwork.Instantiate(enemy.name, check, enemyRot, 0);
+                        thisEnemy.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
                         currentEnemies++;
                     }
                     if (photonView.isMine) {
@@ -83,7 +90,8 @@ public class GameManager : Photon.PunBehaviour {
                     GameObject thisCheck = PhotonNetwork.Instantiate(spawnCheck.name, check, Quaternion.identity, 0) as GameObject;
                     if (thisCheck.GetComponent<SpawnCheck>().isEmpty) {
                         Quaternion enemyRot = new Quaternion(Quaternion.identity.x, Quaternion.identity.y, UnityEngine.Random.rotation.z, Quaternion.identity.w);
-                        PhotonNetwork.Instantiate(enemy.name, check, enemyRot, 0);
+                        thisEnemy = PhotonNetwork.Instantiate(enemy.name, check, enemyRot, 0);
+                        thisEnemy.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
                         currentEnemies++;
                     }
                     if (photonView.isMine) {
@@ -92,13 +100,14 @@ public class GameManager : Photon.PunBehaviour {
                 }
             }
             while (currentBlimps < numBlimps) {
-                if (currentBlimps % 2 == 0) { // even number of blimps
+                if (currentBlimps == 0 || currentBlimps % 2 == 0) { // even number of blimps
                     firstPlayerPos = firstPlayer.transform.position;
                     check = RandomCircle(firstPlayerPos, UnityEngine.Random.Range(20f, 40f));
                     GameObject thisCheck = PhotonNetwork.Instantiate(spawnCheck.name, check, Quaternion.identity, 0) as GameObject;
                     if (thisCheck.GetComponent<SpawnCheck>().isEmpty) {
                         Quaternion blimpRot = new Quaternion(Quaternion.identity.x, Quaternion.identity.y, UnityEngine.Random.rotation.z, Quaternion.identity.w);
-                        PhotonNetwork.Instantiate(blimp.name, check, blimpRot, 0);
+                        thisBlimp = PhotonNetwork.Instantiate(blimp.name, check, blimpRot, 0);
+                        thisBlimp.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
                         currentBlimps++;
                     }
                     if (photonView.isMine) {
@@ -110,7 +119,8 @@ public class GameManager : Photon.PunBehaviour {
                     GameObject thisCheck = PhotonNetwork.Instantiate(spawnCheck.name, check, Quaternion.identity, 0) as GameObject;
                     if (thisCheck.GetComponent<SpawnCheck>().isEmpty) {
                         Quaternion blimpRot = new Quaternion(Quaternion.identity.x, Quaternion.identity.y, UnityEngine.Random.rotation.z, Quaternion.identity.w);
-                        PhotonNetwork.Instantiate(blimp.name, check, blimpRot, 0);
+                        thisBlimp = PhotonNetwork.Instantiate(blimp.name, check, blimpRot, 0);
+                        thisBlimp.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
                         currentBlimps++;
                     }
                     if (photonView.isMine) {

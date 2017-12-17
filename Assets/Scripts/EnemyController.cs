@@ -3,12 +3,22 @@ using System.Collections;
 
 public class EnemyController : MonoBehaviour {
 
+    [SerializeField]
+    public float currentSpeed;
+    [SerializeField]
+    private Vector3 center, wayPoint;
+    [SerializeField]
+    private float wait;
+    [SerializeField]
+    private int diffnum;
+
     public bool avoid;
     public int diffLvl;
-    public float currentHealth, currentSpeed;
+    public float currentHealth;
     public Sprite easyEnemy, mediumEnemy, hardEnemy;
     public Transform[] otherWaypoints;
     public GameObject parts;
+    public GameManager manager;
 
     public int EASY = 1, MEDIUM = 2, HARD = 3;
 
@@ -17,31 +27,28 @@ public class EnemyController : MonoBehaviour {
 
     private bool stop = false, waypointWait = false;
     private float maxSpeed, minSpeed, turnRate, patrolRad, radius, lookWait;
-    private Vector3 center, temp, look, spawnPos, wayPoint;
+    private Vector3 temp, look, spawnPos, dist1, dist2;
     private Quaternion rot, lookAt;
     private Rigidbody rb;
-    private Animator enemyAnim;
-    private GameObject player, cam;
+    private GameObject[] players;
 
     void Awake() {
         avoid = false;
-        enemyAnim = GetComponentInChildren<Animator>();
         easyRate = 50; mediumRate = 85; hardRate = 100;
         Difficulty();
     }
 
     // Use this for initialization
     void Start () {
-        player = GameObject.FindGameObjectWithTag("Player");
+        players = GameObject.FindGameObjectsWithTag("Player");
         rb = GetComponent<Rigidbody>();
-        cam = GameObject.FindGameObjectWithTag("MainCamera");
         spawnPos = transform.position;
     }
 
     void Update() {
         entered = GetComponentInChildren<EnemyPatrol>().entered;
         exited = GetComponentInChildren<EnemyPatrol>().exited;
-        if (currentHealth <= 0) {
+        if (currentHealth <= 0 && PhotonNetwork.isMasterClient) {
             Killed();
         }
     }
@@ -49,34 +56,34 @@ public class EnemyController : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
         if (avoid) { //when avoiding other vehicles
-            Avoid();
+            //Avoid();
         } else if (entered) { //when player is in sight
             if (!stop)
                 StartCoroutine(LookAt());
-            rb.AddForce(transform.up * currentSpeed);
+            Vector3 force = transform.up * currentSpeed;
+            rb.AddForce(force.x, force.y, 0);
         } else if (exited) { //when player is not in sight
             Patrol();
         }
     }
 
     void Difficulty() { //Sets values for enemies based on the difficulty level assigned to them
-        int temp = Random.Range(1, 100);
-        if (temp <= easyRate) {
+        if (PhotonNetwork.isMasterClient) {
+            diffnum = Random.Range(1, 100);
+        }
+        if (diffnum <= easyRate) {
             diffLvl = EASY;
-            enemyAnim.runtimeAnimatorController = Resources.Load("Easy Enemy") as RuntimeAnimatorController;
             maxSpeed = 150; minSpeed = 60; currentSpeed = maxSpeed; turnRate = 370; lookWait = 0.03f; patrolRad = 10; maxHealth = 50; currentHealth = maxHealth;
-        } else if (temp > easyRate && temp <= mediumRate) {
+        } else if (diffnum > easyRate && diffnum <= mediumRate) {
             diffLvl = MEDIUM;
-            enemyAnim.runtimeAnimatorController = Resources.Load("Medium Enemy") as RuntimeAnimatorController;
             maxSpeed = 170; minSpeed = 65; currentSpeed = maxSpeed; turnRate = 380; lookWait = 0.02f; patrolRad = 15; maxHealth = 65; currentHealth = maxHealth;
-        } else if (temp > mediumRate && temp <= hardRate) {
+        } else if (diffnum > mediumRate && diffnum <= hardRate) {
             diffLvl = HARD;
-            enemyAnim.runtimeAnimatorController = Resources.Load("Hard Enemy") as RuntimeAnimatorController;
             maxSpeed = 190; minSpeed = 75; currentSpeed = maxSpeed; turnRate = 390; lookWait = 0.01f; patrolRad = 20; maxHealth = 80; currentHealth = maxHealth;
         }
     }
 
-    void Avoid() { //avoid blimps and other enemies
+    /*void Avoid() { //avoid blimps and other enemies
         Vector3 viewPos = GetComponentInChildren<EnemyFire>().gameObject.transform.position;
         float dis1 = 0, dis2 = 0, dis3 = 0, dis4 = 0;
         if (otherWaypoints[1] != null && otherWaypoints[2] != null && otherWaypoints[3] != null && otherWaypoints[4] != null) {
@@ -110,74 +117,136 @@ public class EnemyController : MonoBehaviour {
                 currentSpeed = maxSpeed;
         }
         transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
-        rb.AddForce(transform.up * currentSpeed);
-    }
+        Vector3 force = transform.up * currentSpeed;
+        rb.AddForce(force.x, force.y, 0);
+    }*/
 
     void Patrol() { //fly around in circles, partrolling an area
-        if (!waypointWait) {
-            StartCoroutine(NewWaypoint());
+        if (PhotonNetwork.isMasterClient) {
+            if (!waypointWait) {
+                StartCoroutine(NewWaypoint());
+            }
+            temp = transform.position - wayPoint;
+            look = new Vector3(temp.x, temp.y, 1000);
+            lookAt = Quaternion.LookRotation(look, Vector3.forward);
+            float angle = Quaternion.Angle(lookAt, transform.rotation);
+            if (angle >= 5.0f && currentSpeed >= minSpeed) {
+                currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
+                if (currentSpeed < minSpeed)
+                    currentSpeed = minSpeed;
+            } else if (angle < 5.0f && currentSpeed < maxSpeed) {
+                currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
+                if (currentSpeed > maxSpeed)
+                    currentSpeed = maxSpeed;
+            }
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
+            Vector3 force = transform.up * currentSpeed;
+            rb.AddForce(force.x, force.y, 0);
+        } else if (!PhotonNetwork.isMasterClient) {
+            if (!waypointWait) {
+                StartCoroutine(NewWaypoint());
+            }
+            temp = transform.position - wayPoint;
+            look = new Vector3(temp.x, temp.y, 1000);
+            lookAt = Quaternion.LookRotation(look, Vector3.forward);
+            float angle = Quaternion.Angle(lookAt, transform.rotation);
+            if (angle >= 5.0f && currentSpeed >= minSpeed) {
+                currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
+                if (currentSpeed < minSpeed)
+                    currentSpeed = minSpeed;
+            } else if (angle < 5.0f && currentSpeed < maxSpeed) {
+                currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
+                if (currentSpeed > maxSpeed)
+                    currentSpeed = maxSpeed;
+            }
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
+            Vector3 force = transform.up * currentSpeed;
+            rb.AddForce(force.x, force.y, 0);
         }
-        temp = transform.position - wayPoint;
-        look = new Vector3(temp.x, temp.y, 1000);
-        lookAt = Quaternion.LookRotation(look, Vector3.forward);
-        float angle = Quaternion.Angle(lookAt, transform.rotation);
-        if (angle >= 5.0f && currentSpeed >= minSpeed) {
-            currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
-            if (currentSpeed < minSpeed)
-                currentSpeed = minSpeed;
-        } else if (angle < 5.0f && currentSpeed < maxSpeed) {
-            currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
-            if (currentSpeed > maxSpeed)
-                currentSpeed = maxSpeed;
-        }
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
-        rb.AddForce(transform.up * currentSpeed);
     }
 
     IEnumerator LookAt() { //track the player's movements to chase them
-        stop = true;
-        yield return new WaitForSeconds(lookWait);
-        if (player != null) {
-            center = player.transform.position;
-        } else {
-            GetComponentInChildren<EnemyPatrol>().enabled = false;
-            GetComponentInChildren<EnemyFire>().enabled = false;
+        if (PhotonNetwork.isMasterClient) {
+            stop = true;
+            yield return new WaitForSeconds(lookWait);
+            if (players.Length == 2) { 
+                if (players[0] != null && players[1] != null) {
+                    dist1 = transform.position - players[0].transform.position;
+                    dist2 = transform.position - players[1].transform.position;
+                    if (dist1.magnitude <= dist2.magnitude) {
+                        center = players[0].transform.position;
+                    } else if (dist2.magnitude <= dist1.magnitude) {
+                        center = players[1].transform.position;
+                    }
+                } else if (players[0] == null) {
+                    center = players[1].transform.position;
+                } else if (players[1] == null) {
+                    center = players[0].transform.position;
+                } else {
+                    GetComponentInChildren<EnemyPatrol>().enabled = false;
+                    GetComponentInChildren<EnemyFire>().enabled = false;
+                }
+            }
+            temp = transform.position - center;
+            look = new Vector3(temp.x, temp.y, 1000);
+            lookAt = Quaternion.LookRotation(look, Vector3.forward);
+            float angle = Quaternion.Angle(lookAt, transform.rotation);
+            if (angle >= 5.0f && currentSpeed >= minSpeed) {
+                currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
+                if (currentSpeed < minSpeed)
+                    currentSpeed = minSpeed;
+            } else if (angle < 5.0f && currentSpeed < maxSpeed) {
+                currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
+                if (currentSpeed > maxSpeed)
+                    currentSpeed = maxSpeed;
+            }
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
+            stop = false;
+        } else if (!PhotonNetwork.isMasterClient) {
+            stop = true;
+            yield return new WaitForSeconds(lookWait);
+            if (players.Length == 2) { 
+                if (players[0] == null && players[1] == null) {
+                    GetComponentInChildren<EnemyPatrol>().enabled = false;
+                    GetComponentInChildren<EnemyFire>().enabled = false;
+                }
+            }
+            temp = transform.position - center;
+            look = new Vector3(temp.x, temp.y, 1000);
+            lookAt = Quaternion.LookRotation(look, Vector3.forward);
+            float angle = Quaternion.Angle(lookAt, transform.rotation);
+            if (angle >= 5.0f && currentSpeed >= minSpeed) {
+                currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
+                if (currentSpeed < minSpeed)
+                    currentSpeed = minSpeed;
+            } else if (angle < 5.0f && currentSpeed < maxSpeed) {
+                currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
+                if (currentSpeed > maxSpeed)
+                    currentSpeed = maxSpeed;
+            }
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
+            stop = false;
         }
-        temp = transform.position - center;
-        look = new Vector3(temp.x, temp.y, 1000);
-        lookAt = Quaternion.LookRotation(look, Vector3.forward);
-        float angle = Quaternion.Angle(lookAt, transform.rotation);
-        if (angle >= 5.0f && currentSpeed >= minSpeed) {
-            currentSpeed = Mathf.Pow(currentSpeed, 0.99f); //think about changing turnrate here in the same fashion
-            if (currentSpeed < minSpeed)
-                currentSpeed = minSpeed;
-        } else if (angle < 5.0f && currentSpeed < maxSpeed) {
-            currentSpeed = Mathf.Pow(currentSpeed, 1.01f);
-            if (currentSpeed > maxSpeed)
-                currentSpeed = maxSpeed;
-        }
-        transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAt, turnRate * Time.deltaTime);
-        stop = false;
     }
     public void Killed() {
         Vector3 temp = transform.position;
         PhotonNetwork.Instantiate(parts.name, temp, Quaternion.identity, 0);
-        Destroy(gameObject);
         if (diffLvl == EASY) {
-            cam.GetComponent<GameController>().score += 25;
+            manager.score += 25;
         } else if (diffLvl == MEDIUM) {
-            cam.GetComponent<GameController>().score += 50;
+            manager.score += 50;
         } else if (diffLvl == HARD) {
-            cam.GetComponent<GameController>().score += 100;
+            manager.score += 100;
         }
         //scales difficulty of newly instantiated enemies as the player kills more enemies
         easyRate -= 2;
         mediumRate -= 1;
+        Destroy(gameObject);
     }
 
     // Will be called AUTOMATICALLY after Killed() by EnemyPlane.OnTriggerExit()
     public void Death() { 
-        cam.GetComponent<GameController>().currentEnemies -= 1;
+        manager.currentEnemies -= 1;
     }
 
     //helper methods
@@ -192,9 +261,36 @@ public class EnemyController : MonoBehaviour {
 
     IEnumerator NewWaypoint() {
         waypointWait = true;
-        yield return new WaitForSeconds(Random.Range(0f, 1f));
-        radius = Random.Range(0.0f, patrolRad);
-        wayPoint = RandomCircle(spawnPos, radius);
+        if (PhotonNetwork.isMasterClient) {
+            wait = Random.Range(0f, 1f);
+            radius = Random.Range(0.0f, patrolRad);
+            wayPoint = RandomCircle(spawnPos, radius);
+        }
+        yield return new WaitForSeconds(wait);
         waypointWait = false;
+    }
+
+    public void SetTarget(GameManager target)  {
+        if (target == null) {
+            Debug.LogError("<Color=Red><a>Missing</a></Color> GameManager target for EnemyController.SetTarget.", this);
+            return;
+        }
+        manager = target;
+    }
+
+    void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
+        if (stream.isWriting) {
+            stream.SendNext(diffnum);
+            stream.SendNext(center);
+            stream.SendNext(wait);
+            stream.SendNext(wayPoint);
+            stream.SendNext(currentSpeed);
+        } else {
+            diffnum = (int)stream.ReceiveNext();
+            center = (Vector3)stream.ReceiveNext();
+            wait = (float)stream.ReceiveNext();
+            wayPoint = (Vector3)stream.ReceiveNext();
+            currentSpeed = (float)stream.ReceiveNext();
+        }
     }
 }

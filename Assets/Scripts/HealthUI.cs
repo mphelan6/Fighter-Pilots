@@ -52,7 +52,7 @@ public class HealthUI : MonoBehaviour {
 
     public void SetTarget(PlayerController target) {
         if (target == null) {
-            Debug.LogError("<Color=Red><a>Missing</a></Color> PlayMakerManager target for PlayerUI.SetTarget.", this);
+            Debug.LogError("<Color=Red><a>Missing</a></Color> PlayerController target for HealthUI.SetTarget.", this);
             return;
         }
 

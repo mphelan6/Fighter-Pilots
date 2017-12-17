@@ -25,8 +25,8 @@ public class PlayerController : Photon.PunBehaviour {
 
     private bool stop = false;
     private float midSpeed;
-    private Rigidbody2D rb;
-    private Vector3 lookVec;
+    private Rigidbody rb;
+    private Vector3 lookVec, force, force1, force2;
     private Quaternion lookAt;
     private GameObject controls;
     private GameObject healthUI, partsUI;
@@ -61,13 +61,13 @@ public class PlayerController : Photon.PunBehaviour {
         }
 
         if (photonView.isMine) {
-            rb = GetComponent<Rigidbody2D>();
+            rb = GetComponent<Rigidbody>();
             currentHealth = maxHealth;
             midSpeed = (maxSpeed + minSpeed) / 2f;
             currentSpeed = midSpeed;
             currentParts = 0;
         } else if (!photonView.isMine) {
-            rb = GetComponent<Rigidbody2D>();
+            rb = GetComponent<Rigidbody>();
             midSpeed = (maxSpeed + minSpeed) / 2f;
             currentSpeed = midSpeed;
         }
@@ -117,7 +117,8 @@ public class PlayerController : Photon.PunBehaviour {
                 if (currentSpeed > maxSpeed)
                     currentSpeed = maxSpeed;
             }
-            rb.AddForce(transform.up * currentSpeed);
+            force = transform.up * currentSpeed;
+            rb.AddForce(force.x, force.y, 0);
         } else if (!photonView.isMine) {
             if (lookVec.x != 0 && lookVec.y != 0) {
                 lookAt = Quaternion.LookRotation(lookVec, Vector3.back);
@@ -137,7 +138,8 @@ public class PlayerController : Photon.PunBehaviour {
                 if (currentSpeed > maxSpeed)
                     currentSpeed = maxSpeed;
             }
-            rb.AddForce(transform.up * currentSpeed);
+            force = transform.up * currentSpeed;
+            rb.AddForce(force.x, force.y, 0);
         }
     }
 
@@ -147,8 +149,10 @@ public class PlayerController : Photon.PunBehaviour {
         GameObject thisRightBullet = Instantiate(bullet, rightBulletSpawn.transform.position, Quaternion.identity) as GameObject;
         thisLeftBullet.transform.rotation = transform.rotation;
         thisRightBullet.transform.rotation = transform.rotation;
-        thisLeftBullet.GetComponent<Rigidbody2D>().AddForce(thisLeftBullet.transform.up * bulletSpeed);
-        thisRightBullet.GetComponent<Rigidbody2D>().AddForce(thisRightBullet.transform.up * bulletSpeed);
+        force1 = thisLeftBullet.transform.up * bulletSpeed;
+        force2 = thisRightBullet.transform.up * bulletSpeed;
+        thisLeftBullet.GetComponent<Rigidbody>().AddForce(force1.x, force1.y, 0);
+        thisRightBullet.GetComponent<Rigidbody>().AddForce(force2.x, force2.y, 0);
         Destroy(thisLeftBullet, 0.25f);
         Destroy(thisRightBullet, 0.25f);
         yield return new WaitForSeconds(0.005f);

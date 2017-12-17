@@ -10,7 +10,7 @@ public class SpawnCheck : MonoBehaviour {
         isEmpty = true;
     }
 
-    void OnTriggerStay2D(Collider2D other) {
+    void OnTriggerStay(Collider other) {
         isEmpty = false;
     }
 }

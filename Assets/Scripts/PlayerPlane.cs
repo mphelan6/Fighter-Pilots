@@ -20,14 +20,14 @@ public class PlayerPlane : MonoBehaviour {
     void OnTriggerEnter(Collider other) {
         if (other.tag.Equals("Enemy Bullet")) {
             if (thisPV.photonView.isMine) {
-                PhotonNetwork.Destroy(other.gameObject);
+                Destroy(other.gameObject);
             }
             playerCon.currentHealth -= 0.5f;
         } else if (other.tag.Equals("Blimp")) {
             playerCon.currentHealth = 0;
         } else if (other.tag.Equals("Cannonball")) {
             if (thisPV.photonView.isMine) {
-                PhotonNetwork.Destroy(other.gameObject);
+                Destroy(other.gameObject);
             }
             playerCon.currentHealth -= 20;
         } else if (other.tag.Equals("Enemy")) {

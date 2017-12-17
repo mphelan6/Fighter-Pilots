@@ -8,13 +8,13 @@ public class EnemyPatrol : MonoBehaviour {
     private int diffLvl;
     private int EASY = 1, MEDIUM = 2, HARD = 3;
 
-    private CircleCollider2D patrol;
+    private SphereCollider patrol;
     private GameObject parent;
 
 	// Use this for initialization
 	void Start () {
         parent = transform.parent.gameObject;
-        patrol = GetComponent<CircleCollider2D>();
+        patrol = GetComponent<SphereCollider>();
         diffLvl = GetComponentInParent<EnemyController>().diffLvl;
         if (diffLvl == EASY) {
             patrol.radius = 10f;
@@ -26,14 +26,16 @@ public class EnemyPatrol : MonoBehaviour {
 	}
 
     void Update() {
-        transform.position = parent.transform.position;
+
     }
 
     void OnTriggerEnter(Collider other) {
         if (other.tag.Equals("Player") && !entered) {
             entered = true;
             exited = false;
-            patrol.radius *= 2;
+            if (PhotonNetwork.isMasterClient) {
+                patrol.radius *= 2;
+            }
         }
     }
 
@@ -41,7 +43,9 @@ public class EnemyPatrol : MonoBehaviour {
         if (other.tag.Equals("Player") && !exited) {
             exited = true;
             entered = false;
-            patrol.radius /= 2;
+            if (PhotonNetwork.isMasterClient) {
+                patrol.radius /= 2;
+            }
         }
     }
 }
