@@ -4,17 +4,13 @@ using System.Collections;
 public class EnemyController : MonoBehaviour {
 
     [SerializeField]
-    public float currentSpeed;
-    [SerializeField]
     private Vector3 center, wayPoint;
     [SerializeField]
     private float wait;
-    [SerializeField]
-    private int diffnum;
 
     public bool avoid;
     public int diffLvl;
-    public float currentHealth;
+    public float currentHealth, currentSpeed;
     public Sprite easyEnemy, mediumEnemy, hardEnemy;
     public Transform[] otherWaypoints;
     public GameObject parts;
@@ -23,7 +19,7 @@ public class EnemyController : MonoBehaviour {
     public int EASY = 1, MEDIUM = 2, HARD = 3;
 
     private bool entered, exited;
-    private int maxHealth, easyRate, mediumRate, hardRate;
+    private int maxHealth, easyRate, mediumRate, hardRate, diffnum;
 
     private bool stop = false, waypointWait = false;
     private float maxSpeed, minSpeed, turnRate, patrolRad, radius, lookWait;
@@ -68,9 +64,6 @@ public class EnemyController : MonoBehaviour {
     }
 
     void Difficulty() { //Sets values for enemies based on the difficulty level assigned to them
-        if (PhotonNetwork.isMasterClient) {
-            diffnum = Random.Range(1, 100);
-        }
         if (diffnum <= easyRate) {
             diffLvl = EASY;
             maxSpeed = 150; minSpeed = 60; currentSpeed = maxSpeed; turnRate = 370; lookWait = 0.03f; patrolRad = 10; maxHealth = 50; currentHealth = maxHealth;
@@ -270,6 +263,10 @@ public class EnemyController : MonoBehaviour {
         waypointWait = false;
     }
 
+    public void SetDiff(int target) {
+        diffnum = target;
+    }
+
     public void SetTarget(GameManager target)  {
         if (target == null) {
             Debug.LogError("<Color=Red><a>Missing</a></Color> GameManager target for EnemyController.SetTarget.", this);
@@ -280,17 +277,13 @@ public class EnemyController : MonoBehaviour {
 
     void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) {
         if (stream.isWriting) {
-            stream.SendNext(diffnum);
             stream.SendNext(center);
             stream.SendNext(wait);
             stream.SendNext(wayPoint);
-            stream.SendNext(currentSpeed);
         } else {
-            diffnum = (int)stream.ReceiveNext();
             center = (Vector3)stream.ReceiveNext();
             wait = (float)stream.ReceiveNext();
             wayPoint = (Vector3)stream.ReceiveNext();
-            currentSpeed = (float)stream.ReceiveNext();
         }
     }
 }

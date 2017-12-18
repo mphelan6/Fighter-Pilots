@@ -29,14 +29,13 @@ public class HealthUI : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        // Destroy itself if the target is null, It's a fail safe when Photon is destroying Instances of a Player over the network
+
         if (_target == null) {
             Destroy(gameObject);
-            return;
         }
 
         // Reflect the Player Health
-        if (PlayerHealthSlider != null) {
+        if (PlayerHealthSlider != null && _target != null) {
             PlayerHealthSlider.value = _target.currentHealth;
         }
     }

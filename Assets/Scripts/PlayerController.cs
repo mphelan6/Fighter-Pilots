@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 
 [RequireComponent(typeof(PhotonView))]
@@ -53,7 +52,7 @@ public class PlayerController : Photon.PunBehaviour {
 
         if (PartsUIPrefab != null) {
             if (photonView.isMine) {
-                partsUI = Instantiate(PartsUIPrefab, new Vector3(650, 390, 0), Quaternion.identity) as GameObject;
+                partsUI = Instantiate(PartsUIPrefab, new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
                 partsUI.SendMessage("SetTarget", this, SendMessageOptions.RequireReceiver);
             }
         } else {

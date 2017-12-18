@@ -10,13 +10,14 @@ public class ScoreText : MonoBehaviour {
     private GameManager _target;
 
     void Awake() {
-        GetComponent<Transform>().SetParent(GameObject.Find("Canvas").GetComponent<Transform>(), false);
+        GetComponent<Transform>().SetParent(GameObject.Find("Canvas").GetComponent<Transform>());
     }
 
     // Use this for initialization
     void Start () {
-		
-	}
+        RectTransform trans = GetComponent<RectTransform>();
+        trans.anchoredPosition = new Vector2(100, -25);
+    }
 	
 	// Update is called once per frame
 	void Update () {
