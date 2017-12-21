@@ -1610,8 +1610,8 @@ internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
         // extra logging for error debugging (helping developers with a bit of automated analysis)
         if (operationResponse.ReturnCode == 0)
         {
-            if (PhotonNetwork.logLevel >= PhotonLogLevel.Informational)
-                Debug.Log(operationResponse.ToString());
+            //if (PhotonNetwork.logLevel >= PhotonLogLevel.Informational)
+            //    Debug.Log(operationResponse.ToString());
         }
         else
         {
@@ -2347,8 +2347,8 @@ internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
 
     public void OnEvent(EventData photonEvent)
     {
-        if (PhotonNetwork.logLevel >= PhotonLogLevel.Informational)
-            Debug.Log(string.Format("OnEvent: {0}", photonEvent.ToString()));
+        //if (PhotonNetwork.logLevel >= PhotonLogLevel.Informational)
+            //Debug.Log(string.Format("OnEvent: {0}", photonEvent.ToString()));
 
         int actorNr = -1;
         PhotonPlayer originatingPlayer = null;
@@ -4286,7 +4286,7 @@ internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
         PhotonView view = this.GetPhotonView(viewID);
         if (view == null)
         {
-            Debug.LogWarning("Received OnSerialization for view ID " + viewID + ". We have no such PhotonView! Ignored this if you're leaving a room. State: " + this.State);
+            //Debug.LogWarning("Received OnSerialization for view ID " + viewID + ". We have no such PhotonView! Ignored this if you're leaving a room. State: " + this.State);
             return;
         }
 

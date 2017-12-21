@@ -15,11 +15,11 @@ public class BlimpController : MonoBehaviour {
     private Quaternion rot, lookAt;
     private Rigidbody2D rb;
 
-    private GameObject cam;
+    private GameObject manager;
 
     // Use this for initialization
     void Start() {
-        cam = GameObject.FindGameObjectWithTag("MainCamera");
+        manager = GameObject.FindGameObjectWithTag("GameManager");
         rb = GetComponent<Rigidbody2D>();
         spawnPos = transform.position;
     }
@@ -28,7 +28,7 @@ public class BlimpController : MonoBehaviour {
         //implement avoidance & attacks
         if (currentHealth <= 0) {
             Death();
-            cam.GetComponent<GameController>().score += 200;
+            manager.GetComponent<GameManager>().score += 200;
         }
     }
 	
@@ -50,7 +50,7 @@ public class BlimpController : MonoBehaviour {
     void Death() {
         Vector3 temp = transform.position;
         Destroy(gameObject);
-        cam.GetComponent<GameController>().currentBlimps -= 1;
+        manager.GetComponent<GameManager>().currentBlimps -= 1;
         Instantiate(parts, temp, Quaternion.identity);
     }
 
@@ -84,7 +84,7 @@ public class BlimpController : MonoBehaviour {
     void OnTriggerExit2D(Collider2D other) {
         if (other.tag.Equals("Proximity")) {
             Destroy(gameObject);
-            cam.GetComponent<GameController>().currentBlimps -= 1;
+            manager.GetComponent<GameManager>().currentBlimps -= 1;
         }
     }
 }

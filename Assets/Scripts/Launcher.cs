@@ -12,11 +12,15 @@ public class Launcher : Photon.PunBehaviour {
     [Tooltip("The UI Label to inform the user that the connection is in progress")]
     public Text progressLabel;
 
-    bool isConnecting, waiting;
+    public GameObject launchCam, launchEvent, launchCanvas;
+
+    public bool first = false;
+
+    bool isConnecting, waiting, once;
     string _gameVersion = "1";
 
-    void Awake()
-    {
+    void Awake() {
+        once = true;
         // #Critical
         // we don't join the lobby. There is no need to join a lobby to get the list of rooms.
         PhotonNetwork.autoJoinLobby = false;
@@ -29,28 +33,32 @@ public class Launcher : Photon.PunBehaviour {
     }
 
     // MonoBehaviour method called on GameObject by Unity during initialization phase.
-    void Start()
-    {
+    void Start() {
         progressLabel.enabled = false;
         controlPanel.SetActive(true);
     }
 
-    void Update()
-    {
-        if (waiting && PhotonNetwork.room.PlayerCount == 2)
-        {
+    void Update() {
+        if (once && waiting && PhotonNetwork.room.PlayerCount == 2) {
             // #Critical
             // Load the Room Level. 
             Debug.Log("We load the game.");
+            launchCam.SetActive(false);
+            launchCanvas.SetActive(false);
+            launchEvent.SetActive(false);
+            DontDestroyOnLoad(gameObject);
+            DontDestroyOnLoad(launchCam);
+            DontDestroyOnLoad(launchCanvas);
+            DontDestroyOnLoad(launchEvent);
             PhotonNetwork.LoadLevel("Main");
+            once = false;
         }
     }
 
     // Start the connection process. 
     // If already connected, we attempt joining a random room
     // - if not yet connected, Connect this application instance to Photon Cloud Network
-    public void Connect()
-    {
+    public void Connect() {
         waiting = false;
         isConnecting = true;
         progressLabel.enabled = true;
@@ -68,8 +76,7 @@ public class Launcher : Photon.PunBehaviour {
 
     public override void OnConnectedToMaster() {
         Debug.Log("DemoAnimator/Launcher: OnConnectedToMaster() was called by PUN");
-        if (isConnecting)
-        {
+        if (isConnecting) {
             // #Critical: The first we try to do is to join a potential existing room. If there is, good, else, we'll be called back with OnPhotonRandomJoinFailed()
             PhotonNetwork.JoinRandomRoom();
         }
@@ -91,9 +98,9 @@ public class Launcher : Photon.PunBehaviour {
         Debug.Log("DemoAnimator/Launcher: OnJoinedRoom() called by PUN. Now this client is in a room.");
         // #Critical: We only load if we are the first player, else we rely on  PhotonNetwork.automaticallySyncScene to sync our instance scene.
         Debug.Log("We wait for our teammate.");
-        if (PhotonNetwork.room.PlayerCount == 1)
-        {
+        if (PhotonNetwork.room.PlayerCount == 1) {
             waiting = true;
+            first = true;
             progressLabel.text = "Waiting for other player...";
         }
     }

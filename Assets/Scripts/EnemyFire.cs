@@ -7,6 +7,7 @@ public class EnemyFire : MonoBehaviour {
     public GameObject bullet, leftBulletSpawn, rightBulletSpawn;
 
     private bool stop = false;
+    private Vector3 force1, force2;
     private GameObject parent;
     private EnemyController enemyCon;
 
@@ -23,7 +24,7 @@ public class EnemyFire : MonoBehaviour {
         }
     }
 
-    void OnTriggerEnter2D(Collider2D other) {
+    void OnTriggerEnter(Collider other) {
         if (other.tag.Equals("Player")) {
             fire = true;
         } else if (other.tag.Equals("Blimp")) {
@@ -32,7 +33,7 @@ public class EnemyFire : MonoBehaviour {
         }
     }
 
-    void OnTriggerExit2D(Collider2D other) {
+    void OnTriggerExit(Collider other) {
         if (other.tag.Equals("Player")) {
             fire = false;
         } else if (other.tag.Equals("Blimp")) {
@@ -46,8 +47,12 @@ public class EnemyFire : MonoBehaviour {
         GameObject thisRightBullet = Instantiate(bullet, rightBulletSpawn.transform.position, Quaternion.identity) as GameObject;
         thisLeftBullet.transform.rotation = leftBulletSpawn.transform.rotation;
         thisRightBullet.transform.rotation = rightBulletSpawn.transform.rotation;
-        thisLeftBullet.GetComponent<Rigidbody2D>().AddForce(thisLeftBullet.transform.up * bulletSpeed);
-        thisRightBullet.GetComponent<Rigidbody2D>().AddForce(thisRightBullet.transform.up * bulletSpeed);
+        force1 = thisLeftBullet.transform.up * bulletSpeed;
+        force2 = thisRightBullet.transform.up * bulletSpeed;
+        thisLeftBullet.GetComponent<Rigidbody>().AddForce(force1.x, force1.y, 0);
+        thisRightBullet.GetComponent<Rigidbody>().AddForce(force2.x, force2.y, 0);
+        Destroy(thisLeftBullet, 0.25f);
+        Destroy(thisRightBullet, 0.25f);
         yield return new WaitForSeconds(0.005f);
         stop = false;
     }
